@@ -12,6 +12,5 @@
 		public MemberVisit ?MemberVisit { get; set; }
 		public DateTime AttendanceDate { get; set; } = DateTime.Now;
 
-		public  Appointment? Appointment { get; set; }
 	}
 }
