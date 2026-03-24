@@ -1,0 +1,694 @@
+﻿@model FitTrack_Pro.ViewModels.MemberDetailsViewModel
+@{
+    ViewData["Title"] = Model.FullName;
+    var nameParts = Model.FullName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+    var initials = nameParts.Length >= 2
+        ? $"{nameParts[0][0]}{nameParts[^1][0]}" : (nameParts.Length == 1 ? nameParts[0][..Math.Min(2, nameParts[0].Length)] : "?");
+    initials = initials.ToUpper();
+    var isActive = Model.Status == FitTrack_Pro.ViewModels.MemberStatus.Active;
+    var sub = Model.ActiveSubscription;
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Syne:wght@500;600&display=swap" rel="stylesheet">
+
+<style>
+    .d-wrap {
+        font-family: 'DM Sans',sans-serif;
+    }
+
+    .d-breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        color: #6b7280;
+        margin-bottom: 1.75rem;
+    }
+
+        .d-breadcrumb a {
+            color: #1a56db;
+            text-decoration: none;
+        }
+
+            .d-breadcrumb a:hover {
+                text-decoration: underline;
+            }
+
+    .d-page-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 1.75rem;
+    }
+
+        .d-page-header h1 {
+            font-family: 'Syne',sans-serif;
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: -.3px;
+            margin: 0;
+        }
+
+        .d-page-header p {
+            font-size: 13px;
+            color: #6b7280;
+            margin: 3px 0 0;
+        }
+
+    .d-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .d-btn {
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-family: 'DM Sans',sans-serif;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all .15s;
+        border: 0.5px solid transparent;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+        .d-btn svg {
+            width: 13px;
+            height: 13px;
+            flex-shrink: 0;
+        }
+
+    .d-btn-primary {
+        background: #1a56db;
+        border-color: #1a56db;
+        color: #fff;
+    }
+
+        .d-btn-primary:hover {
+            filter: brightness(1.08);
+            color: #fff;
+        }
+
+    .d-btn-ghost {
+        background: transparent;
+        border-color: #d1d5db;
+        color: #6b7280;
+    }
+
+        .d-btn-ghost:hover {
+            background: #f3f4f6;
+            color: #111827;
+        }
+
+    .d-layout {
+        display: grid;
+        grid-template-columns: 220px 1fr;
+        gap: 20px;
+        align-items: start;
+    }
+
+    @@media (max-width:700px) {
+        .d-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Profile card */
+    .d-profile {
+        background: #fff;
+        border: 0.5px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 1.5rem 1.25rem;
+        text-align: center;
+    }
+
+    .d-avatar {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        background: #e8effe;
+        border: 2px solid #B5D4F4;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 12px;
+        font-family: 'Syne',sans-serif;
+        font-size: 22px;
+        font-weight: 600;
+        color: #185FA5;
+    }
+
+    .d-profile-name {
+        font-family: 'Syne',sans-serif;
+        font-size: 15px;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .d-profile-sub {
+        font-size: 12px;
+        color: #6b7280;
+        margin: 3px 0 0;
+    }
+
+    .d-chip {
+        display: inline-block;
+        margin-top: 8px;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 500;
+    }
+
+    .d-chip-active {
+        background: #EAF3DE;
+        color: #3B6D11;
+        border: 0.5px solid #C0DD97;
+    }
+
+    .d-chip-expired {
+        background: #FAEEDA;
+        color: #BA7517;
+        border: 0.5px solid #FAC775;
+    }
+
+    .d-chip-none {
+        background: #f3f4f6;
+        color: #6b7280;
+        border: 0.5px solid #e5e7eb;
+    }
+
+    .d-meta {
+        margin-top: 16px;
+        border-top: 0.5px solid #e5e7eb;
+        padding-top: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        text-align: left;
+    }
+
+    .d-meta-row {
+        display: flex;
+        gap: 8px;
+        align-items: flex-start;
+    }
+
+    .d-meta-icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 7px;
+        background: #f3f4f6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+        .d-meta-icon svg {
+            width: 13px;
+            height: 13px;
+            stroke: #6b7280;
+        }
+
+    .d-meta-label {
+        font-size: 11px;
+        color: #9ca3af;
+        margin: 0;
+    }
+
+    .d-meta-val {
+        font-size: 13px;
+        font-weight: 500;
+        color: #111827;
+        margin: 0;
+    }
+
+    /* Medical notes */
+    .d-medical {
+        margin-top: 12px;
+        background: #FAEEDA;
+        border: 0.5px solid #FAC775;
+        border-radius: 8px;
+        padding: 10px 12px;
+        text-align: left;
+    }
+
+    .d-medical-title {
+        font-size: 11px;
+        font-weight: 500;
+        color: #BA7517;
+        letter-spacing: .4px;
+        text-transform: uppercase;
+        margin: 0 0 4px;
+    }
+
+    .d-medical-body {
+        font-size: 12px;
+        color: #7a4f00;
+        margin: 0;
+        line-height: 1.5;
+    }
+
+    /* Right column */
+    .d-col {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .d-card {
+        background: #fff;
+        border: 0.5px solid #e5e7eb;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .d-card-header {
+        padding: 12px 20px;
+        border-bottom: 0.5px solid #e5e7eb;
+        background: #f9fafb;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .d-card-header svg {
+            width: 15px;
+            height: 15px;
+            stroke: #1a56db;
+            flex-shrink: 0;
+        }
+
+    .d-card-title {
+        font-family: 'Syne',sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+        margin: 0;
+    }
+
+    .d-card-body {
+        padding: 20px;
+    }
+
+    /* Active sub grid */
+    .d-sub-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    @@media (max-width:500px) {
+        .d-sub-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .d-sub-tile {
+        background: #f9fafb;
+        border: 0.5px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 12px 14px;
+    }
+
+    .d-sub-tile-label {
+        font-size: 11px;
+        font-weight: 500;
+        color: #9ca3af;
+        letter-spacing: .4px;
+        text-transform: uppercase;
+        margin: 0 0 5px;
+    }
+
+    .d-sub-tile-val {
+        font-family: 'Syne',sans-serif;
+        font-size: 16px;
+        font-weight: 600;
+        color: #111827;
+        margin: 0;
+    }
+
+        .d-sub-tile-val.warn {
+            color: #A32D2D;
+        }
+
+    .d-sub-tile-sub {
+        font-size: 11px;
+        color: #9ca3af;
+        margin: 3px 0 0;
+    }
+
+    /* Progress bar for days remaining */
+    .d-progress-wrap {
+        margin-top: 14px;
+    }
+
+    .d-progress-label {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        color: #6b7280;
+        margin-bottom: 5px;
+    }
+
+    .d-progress-bar {
+        height: 5px;
+        background: #e5e7eb;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .d-progress-fill {
+        height: 100%;
+        border-radius: 4px;
+        transition: width .3s;
+    }
+
+    .fill-ok {
+        background: #3B6D11;
+    }
+
+    .fill-warn {
+        background: #BA7517;
+    }
+
+    .fill-crit {
+        background: #A32D2D;
+    }
+
+    /* Empty sub state */
+    .d-no-sub {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #9ca3af;
+        font-size: 13px;
+    }
+
+        .d-no-sub svg {
+            width: 16px;
+            height: 16px;
+            stroke: #d1d5db;
+        }
+
+    /* History table */
+    .d-hist {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+    }
+
+        .d-hist th {
+            padding: 9px 14px;
+            font-size: 11px;
+            font-weight: 500;
+            color: #9ca3af;
+            letter-spacing: .4px;
+            text-transform: uppercase;
+            border-bottom: 0.5px solid #e5e7eb;
+            text-align: left;
+            background: #f9fafb;
+        }
+
+        .d-hist td {
+            padding: 11px 14px;
+            border-bottom: 0.5px solid #f3f4f6;
+            color: #374151;
+            vertical-align: middle;
+        }
+
+        .d-hist tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .d-hist tbody tr:hover td {
+            background: #fafafa;
+        }
+
+    .d-hist-badge {
+        display: inline-flex;
+        padding: 2px 7px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 500;
+    }
+
+    .dhb-active {
+        background: #EAF3DE;
+        color: #3B6D11;
+        border: 0.5px solid #C0DD97;
+    }
+
+    .dhb-expired {
+        background: #f3f4f6;
+        color: #6b7280;
+        border: 0.5px solid #e5e7eb;
+    }
+</style>
+
+<div class="d-wrap">
+
+    <div class="d-breadcrumb">
+        <a asp-action="Index">Members</a>
+        <span>›</span>
+        <span>@Model.FullName</span>
+    </div>
+
+    <div class="d-page-header">
+        <div>
+            <h1>@Model.FullName</h1>
+            <p>Member profile — ID #@Model.Id</p>
+        </div>
+        <div class="d-actions">
+            <a asp-action="Index" class="d-btn d-btn-ghost">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M10 3L5 8l5 5" />
+                </svg>
+                Back
+            </a>
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="d-btn d-btn-primary">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M10 2l4 4-7 7H3v-4l7-7z" />
+                </svg>
+                Edit member
+            </a>
+        </div>
+    </div>
+
+    <div class="d-layout">
+
+    
+        <div class="d-profile">
+            <div class="d-avatar">@initials</div>
+            <p class="d-profile-name">@Model.FullName</p>
+            <p class="d-profile-sub">@Model.PhoneNumber</p>
+
+            @switch (Model.Status)
+            {
+                case FitTrack_Pro.ViewModels.MemberStatus.Active:
+                    <div class="d-chip d-chip-active">Active</div>
+                    break;
+                case FitTrack_Pro.ViewModels.MemberStatus.Expired:
+                    <div class="d-chip d-chip-expired">Expired</div>
+                    break;
+                default:
+                    <div class="d-chip d-chip-none">No subscription</div>
+                    break;
+            }
+
+            <div class="d-meta">
+                <div class="d-meta-row">
+                    <div class="d-meta-icon">
+                        <svg viewBox="0 0 16 16" fill="none" stroke-width="1.5"><path d="M3 2h3l1.5 3.5-2 1.5a9 9 0 003.5 3.5l1.5-2L14 12v3a1 1 0 01-1 1A12 12 0 012 3a1 1 0 011-1z" /></svg>
+                    </div>
+                    <div>
+                        <p class="d-meta-label">Phone</p>
+                        <p class="d-meta-val">@Model.PhoneNumber</p>
+                    </div>
+                </div>
+                <div class="d-meta-row">
+                    <div class="d-meta-icon">
+                        <svg viewBox="0 0 16 16" fill="none" stroke-width="1.5"><rect x="2" y="3" width="12" height="11" rx="2" /><path d="M5 1v4M11 1v4M2 8h12" /></svg>
+                    </div>
+                    <div>
+                        <p class="d-meta-label">Date of birth</p>
+                        <p class="d-meta-val">@Model.BirthDate.ToString("dd MMM yyyy")</p>
+                    </div>
+                </div>
+                <div class="d-meta-row">
+                    <div class="d-meta-icon">
+                        <svg viewBox="0 0 16 16" fill="none" stroke-width="1.5"><circle cx="8" cy="5" r="3" /><path d="M2 13c0-3 2.5-5 6-5s6 2 6 5" /></svg>
+                    </div>
+                    <div>
+                        <p class="d-meta-label">Age / Gender</p>
+                        <p class="d-meta-val">@Model.Age yrs · @Model.Gender</p>
+                    </div>
+                </div>
+                <div class="d-meta-row">
+                    <div class="d-meta-icon">
+                        <svg viewBox="0 0 16 16" fill="none" stroke-width="1.5"><path d="M2 3v10M5 3v10M7 3v10M10 3v10M13 3v10" /></svg>
+                    </div>
+                    <div>
+                        <p class="d-meta-label">Barcode</p>
+                        <p class="d-meta-val" style="font-family:monospace;font-size:12px">@Model.Barcode</p>
+                    </div>
+                </div>
+                <div class="d-meta-row">
+                    <div class="d-meta-icon">
+                        <svg viewBox="0 0 16 16" fill="none" stroke-width="1.5"><rect x="2" y="3" width="12" height="11" rx="2" /><path d="M5 1v4M11 1v4M2 8h12" /></svg>
+                    </div>
+                    <div>
+                        <p class="d-meta-label">Joined</p>
+                        <p class="d-meta-val">@Model.CreatedAt.ToString("dd MMM yyyy")</p>
+                    </div>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Model.MedicalNotes))
+            {
+                <div class="d-medical">
+                    <p class="d-medical-title">Medical notes</p>
+                    <p class="d-medical-body">@Model.MedicalNotes</p>
+                </div>
+            }
+        </div>
+
+       
+        <div class="d-col">
+
+        
+            <div class="d-card">
+                <div class="d-card-header">
+                    <svg viewBox="0 0 16 16" fill="none" stroke-width="1.5">
+                        <rect x="1" y="4" width="14" height="9" rx="2" />
+                        <path d="M4 4V3a1 1 0 011-1h6a1 1 0 011 1v1M1 8h14" />
+                    </svg>
+                    <span class="d-card-title">Active subscription</span>
+                </div>
+                <div class="d-card-body">
+                    @if (sub is not null)
+                    {
+                        var totalDays = Math.Max(1, (sub.EndDate - sub.StartDate).Days);
+                        var remaining = sub.RemainingDays;
+                        var pct = Math.Max(0, Math.Min(100, (int)(remaining * 100.0 / totalDays)));
+                        var fillCls = pct > 30 ? "fill-ok" : pct > 10 ? "fill-warn" : "fill-crit";
+
+                        <div class="d-sub-grid">
+                            <div class="d-sub-tile">
+                                <p class="d-sub-tile-label">Plan</p>
+                                <p class="d-sub-tile-val">@sub.PlanName</p>
+                            </div>
+                            <div class="d-sub-tile">
+                                <p class="d-sub-tile-label">Amount paid</p>
+                                <p class="d-sub-tile-val">@sub.PaidAmount.ToString("N0") EGP</p>
+                            </div>
+                            <div class="d-sub-tile">
+                                <p class="d-sub-tile-label">Start date</p>
+                                <p class="d-sub-tile-val" style="font-size:14px">@sub.StartDate.ToString("dd MMM yyyy")</p>
+                            </div>
+                            <div class="d-sub-tile">
+                                <p class="d-sub-tile-label">End date</p>
+                                <p class="d-sub-tile-val @(remaining <= 7 ? "warn" : "")" style="font-size:14px">
+                                    @sub.EndDate.ToString("dd MMM yyyy")
+                                </p>
+                                @if (remaining <= 7)
+                                {
+                                    <p class="d-sub-tile-sub" style="color:#A32D2D">Expires in @remaining day(s)</p>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="d-progress-wrap">
+                            <div class="d-progress-label">
+                                <span>Days remaining</span>
+                                <span style="font-weight:500;color:#111827">@remaining days</span>
+                            </div>
+                            <div class="d-progress-bar">
+                                <div class="d-progress-fill @fillCls" style="width:@pct%"></div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="d-no-sub">
+                            <svg viewBox="0 0 16 16" fill="none" stroke-width="1.5">
+                                <circle cx="8" cy="8" r="6" />
+                                <path d="M8 5v3M8 11h.01" />
+                            </svg>
+                            No active subscription. Assign a plan to activate this member.
+                        </div>
+                    }
+                </div>
+            </div>
+
+          
+            <div class="d-card">
+                <div class="d-card-header">
+                    <svg viewBox="0 0 16 16" fill="none" stroke-width="1.5">
+                        <circle cx="8" cy="8" r="6" />
+                        <path d="M8 5v3l2 2" />
+                    </svg>
+                    <span class="d-card-title">Subscription history</span>
+                </div>
+                @if (!Model.SubscriptionHistory.Any())
+                {
+                    <div class="d-card-body">
+                        <div class="d-no-sub">
+                            <svg viewBox="0 0 16 16" fill="none" stroke-width="1.5">
+                                <path d="M4 8h8M8 4v8" />
+                            </svg>
+                            No subscription history yet.
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div style="overflow-x:auto">
+                        <table class="d-hist">
+                            <thead>
+                                <tr>
+                                    <th>Plan</th>
+                                    <th>Start</th>
+                                    <th>End</th>
+                                    <th>Paid</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var s in Model.SubscriptionHistory)
+                                {
+                                    <tr>
+                                        <td style="font-weight:500;color:#111827">@s.PlanName</td>
+                                        <td>@s.StartDate.ToString("dd MMM yyyy")</td>
+                                        <td>@s.EndDate.ToString("dd MMM yyyy")</td>
+                                        <td style="font-weight:500">@s.PaidAmount.ToString("N0") EGP</td>
+                                        <td>
+                                            @if (s.IsActive && s.EndDate >= DateTime.Today)
+                                            {
+                                                <span class="d-hist-badge dhb-active">Active</span>
+                                            }
+                                            else
+                                            {
+
+                                                <span class="d-hist-badge dhb-expired">Expired</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+
+        </div>
+    </div>
+</div>

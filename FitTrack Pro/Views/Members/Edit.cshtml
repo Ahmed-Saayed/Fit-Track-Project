@@ -1,0 +1,7 @@
+﻿@model FitTrack_Pro.ViewModels.MemberFormViewModel
+@{
+    ViewData["Title"] = "Edit Member";
+}
+
+@* Edit re-uses the Create view (which auto-detects isEdit via Model.Id != 0) *@
+@await Html.PartialAsync("Create", Model)

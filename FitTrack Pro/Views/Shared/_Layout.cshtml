@@ -1,6 +1,5 @@
-﻿@* 
-    _Layout.cshtml for FitTrack Pro
-    Responsive layout combining a fixed sidebar, top navbar, and dynamic content area.
+﻿@* _Layout.cshtml for FitTrack Pro
+    Responsive layout with dynamic active link highlighting.
 *@
 <!DOCTYPE html>
 <html lang="en">
@@ -9,33 +8,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - FitTrack Pro</title>
 
-    <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Bootstrap 5 CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 
-    <!-- FontAwesome 6 CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
           integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA=="
           crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-    <!-- Layout Custom CSS -->
-   <link href="~/css/site.css" rel="stylesheet" />
+    <link href="~/css/site.css" rel="stylesheet" />
 </head>
 <body>
 
-    <!-- Mobile Sidebar Overlay -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
     <div class="layout-wrapper">
-        
-        <!-- ==============================================
-             LEFT SIDEBAR NAVIGATION
-             ============================================== -->
+
         <aside class="sidebar" id="sidebar">
             <div class="brand-section">
                 <a href="~/" class="brand-title">
@@ -45,70 +36,70 @@
             </div>
 
             <nav class="nav-links">
+                @{
+                    // Logic to determine which link is active based on the URL
+                    var currentController = ViewContext.RouteData.Values["Controller"]?.ToString();
+                }
+
                 <div class="nav-item">
-                    <a href="~/" class="sidebar-link active">
+                    <a href="~/" class="sidebar-link @(currentController == "Home" || string.IsNullOrEmpty(currentController) ? "active" : "")">
                         <i class="fa-solid fa-table-cells-large"></i> Dashboard
                     </a>
                 </div>
                 <div class="nav-item">
-                    <a href="~/Members" class="sidebar-link">
+                    <a href="~/Members" class="sidebar-link @(currentController == "Members" ? "active" : "")">
                         <i class="fa-solid fa-users"></i> Members
                     </a>
                 </div>
                 <div class="nav-item">
-                    <a href="~/Classes" class="sidebar-link">
+                    <a href="~/Classes" class="sidebar-link @(currentController == "Classes" ? "active" : "")">
                         <i class="fa-solid fa-dumbbell"></i> Classes
                     </a>
                 </div>
                 <div class="nav-item">
-                    <a href="~/Schedule" class="sidebar-link">
+                    <a href="~/Schedule" class="sidebar-link @(currentController == "Schedule" ? "active" : "")">
                         <i class="fa-solid fa-calendar-days"></i> Schedule
                     </a>
                 </div>
                 <div class="nav-item">
-                    <a href="~/Trainers" class="sidebar-link">
+                    <a href="~/Trainers" class="sidebar-link @(currentController == "Trainers" ? "active" : "")">
                         <i class="fa-solid fa-id-badge"></i> Trainers
                     </a>
                 </div>
                 <div class="nav-item">
-                    <a href="~/Plans" class="sidebar-link">
+                    <a href="~/Plans" class="sidebar-link @(currentController == "Plans" ? "active" : "")">
                         <i class="fa-solid fa-money-bill-wave"></i> Plans
                     </a>
                 </div>
                 <div class="nav-item">
-                    <a href="~/Reports" class="sidebar-link">
+                    <a href="~/Reports" class="sidebar-link @(currentController == "Reports" ? "active" : "")">
                         <i class="fa-solid fa-chart-bar"></i> Reports
                     </a>
                 </div>
             </nav>
 
             <div class="profile-section">
-                <!-- User Avatar (using a placeholder image, can be replaced with model data) -->
                 <img src="https://ui-avatars.com/api/?name=Alex+Rivera&background=0D6EFD&color=fff&rounded=true&bold=true" alt="Alex Rivera" class="profile-avatar">
-                
+
                 <div class="profile-info">
                     <h6 class="profile-name">Alex Rivera</h6>
                     <p class="profile-title">Head Manager</p>
                 </div>
 
-                <a href="~/Settings" class="profile-settings" title="Settings">
+                <a href="~/Settings" class="profile-settings @(currentController == "Settings" ? "active-icon" : "")" title="Settings">
                     <i class="fa-solid fa-gear"></i>
                 </a>
             </div>
         </aside>
 
-        <!-- ==============================================
-             MAIN WRAPPER
-             ============================================== -->
         <div class="main-wrapper">
-            
-            <!-- ====== TOP NAVBAR ====== -->
+
             <header class="top-navbar mb-3 mt-1">
                 <div class="header-left">
                     <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle Navigation">
                         <i class="fa-solid fa-bars"></i>
                     </button>
-                    
+
                     <div class="search-bar-container">
                         <i class="fa-solid fa-search"></i>
                         <input type="text" class="search-bar" placeholder="Search members, classes..." aria-label="Search">
@@ -128,21 +119,17 @@
                 </div>
             </header>
 
-            <!-- ====== MAIN CONTENT AREA ====== -->
             <main role="main" class="content-wrapper">
-                @* Render actual page content here *@
                 @RenderBody()
             </main>
 
         </div>
     </div>
 
-    <!-- Bootstrap 5 JS Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" 
-            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
             crossorigin="anonymous"></script>
 
-    <!-- Sidebar Toggle Logic for Mobile -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const toggleBtn = document.getElementById('mobileToggle');
@@ -153,25 +140,18 @@
                 sidebar.classList.toggle('show');
                 if (sidebar.classList.contains('show')) {
                     overlay.style.display = 'block';
-                    // small delay to allow display block to apply before opacity transition
                     setTimeout(() => overlay.classList.add('show'), 10);
                 } else {
                     overlay.classList.remove('show');
-                    setTimeout(() => overlay.style.display = 'none', 300); // match CSS transition duration
+                    setTimeout(() => overlay.style.display = 'none', 300);
                 }
             }
 
-            if(toggleBtn) {
-                toggleBtn.addEventListener('click', toggleSidebar);
-            }
-
-            if(overlay) {
-                overlay.addEventListener('click', toggleSidebar);
-            }
+            if(toggleBtn) toggleBtn.addEventListener('click', toggleSidebar);
+            if(overlay) overlay.addEventListener('click', toggleSidebar);
         });
     </script>
 
-    <!-- Page Specific Scripts -->
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
