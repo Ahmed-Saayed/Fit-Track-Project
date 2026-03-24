@@ -20,7 +20,8 @@ namespace FitTrack_Pro.Models
 
 		public string? MedicalNotes { get; set; }
 		//public bool IsActive { get; set; } = true;
-
+		public string? UserId { get; set; }
+		public virtual ApplicationUser? UserAccount { get; set; }
 		// Relationships
 		public  ICollection<MemberSubscription> Subscriptions { get; set; } 
 		public  ICollection<ClassAttendance> Attendances { get; set; } 

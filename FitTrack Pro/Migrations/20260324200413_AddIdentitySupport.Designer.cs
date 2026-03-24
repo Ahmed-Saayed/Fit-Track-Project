@@ -4,6 +4,7 @@ using FitTrack_Pro.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FitTrack_Pro.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260324200413_AddIdentitySupport")]
+    partial class AddIdentitySupport
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -216,15 +219,7 @@ namespace FitTrack_Pro.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<string>("UserAccountId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("UserAccountId");
 
                     b.ToTable("Members");
                 });
@@ -376,15 +371,7 @@ namespace FitTrack_Pro.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserAccountId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("UserAccountId");
 
                     b.ToTable("Trainers");
                 });
@@ -560,15 +547,6 @@ namespace FitTrack_Pro.Migrations
                     b.Navigation("Trainer");
                 });
 
-            modelBuilder.Entity("FitTrack_Pro.Models.Member", b =>
-                {
-                    b.HasOne("FitTrack_Pro.Models.ApplicationUser", "UserAccount")
-                        .WithMany()
-                        .HasForeignKey("UserAccountId");
-
-                    b.Navigation("UserAccount");
-                });
-
             modelBuilder.Entity("FitTrack_Pro.Models.MemberSubscription", b =>
                 {
                     b.HasOne("FitTrack_Pro.Models.Member", "Member")
@@ -586,15 +564,6 @@ namespace FitTrack_Pro.Migrations
                     b.Navigation("Member");
 
                     b.Navigation("SubscriptionPlan");
-                });
-
-            modelBuilder.Entity("FitTrack_Pro.Models.Trainer", b =>
-                {
-                    b.HasOne("FitTrack_Pro.Models.ApplicationUser", "UserAccount")
-                        .WithMany()
-                        .HasForeignKey("UserAccountId");
-
-                    b.Navigation("UserAccount");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
