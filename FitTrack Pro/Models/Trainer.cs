@@ -9,6 +9,8 @@
 			public string PhoneNumber { get; set; } = string.Empty;
 			public string Specialty { get; set; } = string.Empty;
 			public decimal SalaryOrPercentage { get; set; }
-			public  ICollection<GymClass> Classes { get; set; } 
+		public string? UserId { get; set; }
+		public virtual ApplicationUser? UserAccount { get; set; }
+		public  ICollection<GymClass> Classes { get; set; } 
 		}
 	}
