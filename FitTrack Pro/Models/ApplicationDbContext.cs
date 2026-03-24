@@ -1,8 +1,8 @@
-﻿
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 namespace FitTrack_Pro.Models
 {
-    public class ApplicationDbContext:DbContext
-    {
+    public class ApplicationDbContext: IdentityDbContext<ApplicationUser>
+	{
         public DbSet<Member> Members { get; set; }
         public DbSet<Trainer> Trainers { get; set; }
         public DbSet<GymClass> GymClasses { get; set; }

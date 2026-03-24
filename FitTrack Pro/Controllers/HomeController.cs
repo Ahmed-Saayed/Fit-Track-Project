@@ -1,3 +1,4 @@
+using Common;
 using FitTrack_Pro.Models;
 using FitTrack_Pro.ViewModels;
 using Microsoft.AspNetCore.Mvc;
