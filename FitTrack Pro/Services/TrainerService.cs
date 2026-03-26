@@ -1,12 +1,14 @@
 using Common;
+using FitTrack_Pro.Helpers;
 using FitTrack_Pro.Interfaces;
 using FitTrack_Pro.Models;
 using FitTrack_Pro.ViewModels;
 
 namespace FitTrack_Pro.Services
 {
-    public class TrainerService(ITrainerRepository trainerRepo, IUnitOfWork uow) : ITrainerService
+    public class TrainerService(ITrainerRepository trainerRepo, IUnitOfWork uow,IAccountHelper accountHelper) : ITrainerService
     {
+        private readonly IAccountHelper _accountHelper = accountHelper;
         // ────────────────────────────────────────────────────────────
         //  PAGED LIST  (with optional search)
         // ────────────────────────────────────────────────────────────
@@ -89,13 +91,24 @@ namespace FitTrack_Pro.Services
         public async Task<(bool Success, string? Error, int NewId)> CreateTrainerAsync(
             TrainerFormViewModel model)
         {
+            RegisterModel registerModel = new RegisterModel
+            {
+                FullName = model.FullName,
+                UserName  = model.UserName, 
+                Password = model.Password, 
+                Role = "Trainer"
+            };
+             string userId = await _accountHelper.RegisterUser(registerModel);
+            if(userId == null)
+                return (false, "Failed to create user account for the trainer.", 0);    
             var trainer = new Trainer
             {
                 FullName = model.FullName.Trim(),
                 PhoneNumber = model.PhoneNumber.Trim(),
                 Specialty = model.Specialty.Trim(),
                 SalaryOrPercentage = model.SalaryOrPercentage,
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.Now,
+                UserId = userId
             };
 
             await trainerRepo.AddAsync(trainer);

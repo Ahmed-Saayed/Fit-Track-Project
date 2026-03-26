@@ -1,0 +1,65 @@
+﻿@model FitTrack_Pro.ViewModels.AddRoleViewModel
+
+@{
+ ViewData["Title"] = "Create Role";
+}
+
+<div class="container-fluid px-0">
+ <div class="d-flex justify-content-between align-items-center mb-4 mt-3">
+ <div>
+ <h2 class="fw-bold mb-1">Create Role</h2>
+ <p class="text-muted mb-0">Add a new role to manage permissions across the application.</p>
+ </div>
+ <div>
+ <a asp-action="Index" class="btn btn-outline-secondary rounded-pill me-2 px-4">Back to Roles</a>
+ </div>
+ </div>
+
+ <div class="row">
+ <div class="col-lg-6">
+ <div class="card border-0 shadow-sm rounded-4">
+ <div class="card-body p-4">
+ <h5 class="fw-bold mb-3">Role details</h5>
+
+ <form asp-action="Create" method="post" novalidate>
+ @Html.AntiForgeryToken()
+
+ <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+ <div class="mb-3">
+ <label asp-for="RoleName" class="form-label fw-semibold"></label>
+ <input asp-for="RoleName" class="form-control form-control-lg rounded-3" placeholder="e.g. Administrator" />
+ <span asp-validation-for="RoleName" class="text-danger small"></span>
+ </div>
+
+ <div class="d-flex justify-content-end gap-2 mt-4">
+ <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4">Cancel</a>
+ <button type="submit" class="btn btn-primary rounded-pill px-4">Create Role</button>
+ </div>
+ </form>
+ </div>
+ </div>
+ </div>
+
+ <div class="col-lg-6 d-none d-lg-block">
+ <div class="card border-0 rounded-4 h-100 bg-light shadow-sm p-4">
+ <div class="card-body">
+ <h6 class="fw-bold">Tips when creating roles</h6>
+ <ul class="text-muted small">
+ <li>Use a clear, short name that reflects the role purpose.</li>
+ <li>Assign permissions later from the Roles management page.</li>
+ <li>Avoid using personal names; use functional names like "Manager" or "Staff".</li>
+ </ul>
+ </div>
+ </div>
+ </div>
+ </div>
+</div>
+
+@section Scripts {
+ @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
+<style>
+ .rounded-4 { border-radius:1rem !important; }
+</style>

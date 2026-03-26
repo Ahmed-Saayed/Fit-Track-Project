@@ -74,6 +74,13 @@ namespace FitTrack_Pro.ViewModels
         [Range(0, double.MaxValue, ErrorMessage = "Must be a positive value")]
         [Display(Name = "Salary / Percentage")]
         public decimal SalaryOrPercentage { get; set; }
+
+        [EmailAddress(ErrorMessage = "Invalid email address")]
+        public string UserName { get; set; }
+        [DataType(DataType.Password)]
+        public string Password { get; set; }
+        [Compare("Password")]
+        public string ConfirmPassword { get; set; }
     }
 
     // ════════════════════════════════════════════════════════════════

@@ -4,6 +4,7 @@ using FitTrack_Pro.Models;
 using FitTrack_Pro.Services;
 using FitTrack_Pro.Repositories;
 using Microsoft.AspNetCore.Identity;
+using FitTrack_Pro.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,7 +31,10 @@ builder.Services.ConfigureApplicationCookie(options =>
 });
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+//Plan
 builder.Services.AddScoped<IPlanService, PlanService>();
+//Account Helper 
+builder.Services.AddScoped<IAccountHelper, AccountHelper>();
 
 // Member-specific repo + service
 builder.Services.AddScoped<IMemberRepository, MemberRepository>();

@@ -91,6 +91,13 @@ namespace FitTrack_Pro.ViewModels
 
         [Display(Name = "Medical Notes")]
         public string? MedicalNotes { get; set; }
+        [EmailAddress(ErrorMessage = "Invalid email address")]
+        public string UserName { get; set; }
+        [DataType(DataType.Password)]
+        public string Password { get; set; }
+        [Compare("Password")]
+        public string ConfirmPassword { get; set; }
+
     }
 
     // ════════════════════════════════════════════════════════════════
