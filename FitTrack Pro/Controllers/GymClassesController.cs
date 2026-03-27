@@ -1,5 +1,6 @@
 using FitTrack_Pro.Interfaces;
 using FitTrack_Pro.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FitTrack_Pro.Controllers
@@ -10,6 +11,7 @@ namespace FitTrack_Pro.Controllers
         //  GET  /GymClasses  –  Weekly Schedule or Paged List
         // ════════════════════════════════════════════════════════
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Index(
             string? search, int page = 1, int pageSize = 10, string view = "schedule", DateTime? startDate = null)
         {
@@ -29,6 +31,7 @@ namespace FitTrack_Pro.Controllers
         //  GET  /GymClasses/Details/5
         // ════════════════════════════════════════════════════════
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Details(int id)
         {
             var vm = await gymClassService.GetGymClassDetailsAsync(id);
@@ -40,6 +43,7 @@ namespace FitTrack_Pro.Controllers
         //  GET  /GymClasses/Create
         // ════════════════════════════════════════════════════════
         [HttpGet]
+        [Authorize(Roles ="Admin")]
         public async Task<IActionResult> Create()
         {
             var vm = await gymClassService.GetCreateFormAsync();
@@ -50,6 +54,7 @@ namespace FitTrack_Pro.Controllers
         //  POST /GymClasses/Create
         // ════════════════════════════════════════════════════════
         [HttpPost, ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create(GymClassFormViewModel model)
         {
             if (!ModelState.IsValid)
@@ -74,6 +79,7 @@ namespace FitTrack_Pro.Controllers
         //  GET  /GymClasses/Edit/5
         // ════════════════════════════════════════════════════════
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id)
         {
             var vm = await gymClassService.GetEditFormAsync(id);
@@ -85,6 +91,7 @@ namespace FitTrack_Pro.Controllers
         //  POST /GymClasses/Edit
         // ════════════════════════════════════════════════════════
         [HttpPost, ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(GymClassFormViewModel model)
         {
             if (!ModelState.IsValid)
@@ -111,6 +118,7 @@ namespace FitTrack_Pro.Controllers
         //  POST /GymClasses/Delete
         // ════════════════════════════════════════════════════════
         [HttpPost, ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var (success, error) = await gymClassService.DeleteGymClassAsync(id);

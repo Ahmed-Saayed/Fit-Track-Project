@@ -1,5 +1,6 @@
 using FitTrack_Pro.Interfaces;
 using FitTrack_Pro.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FitTrack_Pro.Controllers
@@ -10,6 +11,7 @@ namespace FitTrack_Pro.Controllers
         //  GET  /Trainers  –  paged list with optional search
         // ════════════════════════════════════════════════════════
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Index(
             string? search, int page = 1, int pageSize = 10)
         {
@@ -21,6 +23,7 @@ namespace FitTrack_Pro.Controllers
         //  GET  /Trainers/Details/5
         // ════════════════════════════════════════════════════════
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Details(int id)
         {
             var vm = await trainerService.GetTrainerDetailsAsync(id);
@@ -32,6 +35,7 @@ namespace FitTrack_Pro.Controllers
         //  GET  /Trainers/Create
         // ════════════════════════════════════════════════════════
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create()
         {
             var vm = await trainerService.GetCreateFormAsync();
@@ -42,6 +46,7 @@ namespace FitTrack_Pro.Controllers
         //  POST /Trainers/Create
         // ════════════════════════════════════════════════════════
         [HttpPost, ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create(TrainerFormViewModel model)
         {
             if (!ModelState.IsValid) return View(model);
@@ -61,6 +66,7 @@ namespace FitTrack_Pro.Controllers
         //  GET  /Trainers/Edit/5
         // ════════════════════════════════════════════════════════
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id)
         {
             var vm = await trainerService.GetEditFormAsync(id);
@@ -72,6 +78,7 @@ namespace FitTrack_Pro.Controllers
         //  POST /Trainers/Edit
         // ════════════════════════════════════════════════════════
         [HttpPost, ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(TrainerFormViewModel model)
         {
             if (!ModelState.IsValid) return View(model);
@@ -90,6 +97,7 @@ namespace FitTrack_Pro.Controllers
         //  POST /Trainers/Delete  (AJAX-friendly)
         // ════════════════════════════════════════════════════════
         [HttpPost, ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var (success, error) = await trainerService.DeleteTrainerAsync(id);

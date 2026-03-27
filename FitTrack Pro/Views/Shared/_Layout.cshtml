@@ -117,6 +117,32 @@
                         <i class="fa-regular fa-bell pt-1"></i>
                         <span class="notification-badge"></span>
                     </button>
+
+                    @* User area: show FullName and logout if authenticated, otherwise show Login *@
+                    <div class="ms-3 d-flex align-items-center">
+                        @if (User?.Identity?.IsAuthenticated ?? false)
+                        {
+                            var fullNameClaim = User.FindFirst("FullName")?.Value ?? User.Identity.Name;
+                            <div class="d-flex align-items-center text-end me-3">
+                                <div class="me-2">
+                                    <div class="small text-muted">Signed in as</div>
+                                    <div class="fw-semibold">@fullNameClaim</div>
+                                </div>
+                                <div>
+                                    <img src="https://ui-avatars.com/api/?name=@(Uri.EscapeDataString(fullNameClaim ?? "User"))&background=0D6EFD&color=fff&rounded=true&bold=true" alt="@fullNameClaim" class="rounded-circle" style="width:38px;height:38px;" />
+                                </div>
+                            </div>
+
+                            <form asp-controller="Account" asp-action="Logout" method="post" class="m-0">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-outline-danger rounded-pill">Logout</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <a asp-controller="Account" asp-action="Login" class="btn btn-outline-primary rounded-pill">Login</a>
+                        }
+                    </div>
                 </div>
             </header>
 

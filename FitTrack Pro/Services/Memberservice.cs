@@ -1,11 +1,12 @@
 using Common;
+using FitTrack_Pro.Helpers;
 using FitTrack_Pro.Interfaces;
 using FitTrack_Pro.Models;
 using FitTrack_Pro.ViewModels;
 
 namespace FitTrack_Pro.Services
 {
-	public class MemberService(IMemberRepository memberRepo, IUnitOfWork uow) : IMemberService
+	public class MemberService(IMemberRepository memberRepo, IUnitOfWork uow , IAccountHelper _accountHelper) : IMemberService
 	{
 		// ────────────────────────────────────────────────────────────
 		//  PAGED LIST  (with optional search)
@@ -110,8 +111,17 @@ namespace FitTrack_Pro.Services
 		{
 			if (await memberRepo.BarcodeExistsAsync(model.Barcode))
 				return (false, "Barcode is already in use by another member.", 0);
+			RegisterModel registerModel = new()
+			{
+				UserName = model.UserName,
+				Password = model.Password,
+				Role = "Member"
+            };
+			string userId = await _accountHelper.RegisterUser(registerModel);
+			if(userId == null)
+				return (false, "Failed to create user account for the member.", 0);
 
-			var member = new Member
+            var member = new Member
 			{
 				FullName = model.FullName.Trim(),
 				PhoneNumber = model.PhoneNumber.Trim(),
@@ -119,8 +129,9 @@ namespace FitTrack_Pro.Services
 				Gender = model.Gender,
 				Barcode = model.Barcode.Trim(),
 				MedicalNotes = model.MedicalNotes?.Trim(),
-				CreatedAt = DateTime.Now
-			};
+				CreatedAt = DateTime.Now,
+				UserId = userId
+            };
 
 			await memberRepo.AddAsync(member);
 			await uow.CompleteAsync();

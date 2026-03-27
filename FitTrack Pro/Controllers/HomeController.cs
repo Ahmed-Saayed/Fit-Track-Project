@@ -1,6 +1,7 @@
 using Common;
 using FitTrack_Pro.Models;
 using FitTrack_Pro.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -14,7 +15,7 @@ namespace FitTrack_Pro.Controllers
 		{
 			_context = context;
 		}
-
+		//[Authorize]
 		public async Task<IActionResult> Index()
 		{
 			var today = DateTime.Today;
