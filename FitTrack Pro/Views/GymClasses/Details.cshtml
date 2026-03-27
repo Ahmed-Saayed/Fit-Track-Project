@@ -138,8 +138,21 @@
                                 <td class="text-muted">@attendee.MemberPhoneNumber</td>
                                 <td>@attendee.AttendanceDate.ToString("dd MMM yyyy, HH:mm")</td>
                                 <td class="text-end pe-4">
-                                    <a asp-controller="Members" asp-action="Details" asp-route-id="@attendee.MemberId" 
-                                       class="btn btn-sm btn-link text-primary p-0">View profile</a>
+                                    <div class="d-flex justify-content-end align-items-center gap-2">
+                                        <a asp-controller="Members" asp-action="Details" asp-route-id="@attendee.MemberId" 
+                                           class="btn btn-sm btn-link text-primary p-0">View profile</a>
+                                        
+                                        <form asp-action="RemoveMember" method="post" 
+                                              onsubmit="return confirm('Are you sure you want to remove @attendee.MemberName from this class?');"
+                                              style="display:inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="gymClassId" value="@Model.Id" />
+                                            <input type="hidden" name="memberId" value="@attendee.MemberId" />
+                                            <button type="submit" class="btn btn-sm btn-link text-danger p-0" style="text-decoration:none">
+                                                Remove
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         }

@@ -60,6 +60,7 @@ namespace FitTrack_Pro.Services
                 .Where(c => c.Id == id && !c.IsDeleted)
                 .Include(c => c.Trainer)
                 .Include(c => c.Attendees)
+                    .ThenInclude(a => a.Member)
                 .FirstOrDefaultAsync();
 
             if (gymClass is null) return null;
@@ -73,7 +74,7 @@ namespace FitTrack_Pro.Services
                 ScheduleTime = gymClass.ScheduleTime,
                 DurationInMinutes = gymClass.DurationInMinutes,
                 MaxCapacity = gymClass.MaxCapacity,
-                AttendeeCount = gymClass.Attendees?.Count ?? 0,
+                AttendeeCount = gymClass.Attendees?.Count(a => !a.IsDeleted) ?? 0,
                 CreatedAt = gymClass.CreatedAt,
                 Attendees = gymClass.Attendees?
                     .Where(a => !a.IsDeleted)
@@ -256,7 +257,7 @@ namespace FitTrack_Pro.Services
 
             if (gymClass is null) return (false, "Gym class not found.");
 
-            if (gymClass.Attendees.Count >= gymClass.MaxCapacity)
+            if (gymClass.Attendees.Count(a => !a.IsDeleted) >= gymClass.MaxCapacity)
                 return (false, "This class has reached its maximum capacity.");
 
             if (gymClass.Attendees.Any(a => a.MemberId == model.MemberId && !a.IsDeleted))
@@ -273,20 +274,41 @@ namespace FitTrack_Pro.Services
             };
 
             await uow.MemberVisits.AddAsync(visit);
-            // We need to commit here to get the Visit ID if the UoW doesn't handle it automatically 
-            // but usually IUnitOfWork.CompleteAsync() will handle the order.
-            // However, ClassAttendance needs MemberVisitId.
 
             var attendance = new ClassAttendance
             {
                 GymClassId = model.GymClassId,
                 MemberId = model.MemberId,
-                MemberVisit = visit, // Link the object, EF will handle the ID
+                MemberVisit = visit,
                 AttendanceDate = model.AttendanceDate,
                 CreatedAt = DateTime.Now
             };
 
             await uow.ClassAttendaces.AddAsync(attendance);
+            await uow.CompleteAsync();
+
+            return (true, null);
+        }
+
+        public async Task<(bool Success, string? Error)> RemoveMemberFromClassAsync(int gymClassId, int memberId)
+        {
+            var attendance = await uow.ClassAttendaces.GetAllAsync()
+                .Include(a => a.MemberVisit)
+                .FirstOrDefaultAsync(a => a.GymClassId == gymClassId && a.MemberId == memberId && !a.IsDeleted);
+
+            if (attendance is null)
+                return (false, "Attendance record not found.");
+
+            // Soft delete both attendance and the unique visit linked to it
+            attendance.IsDeleted = true;
+            uow.ClassAttendaces.Update(attendance);
+
+            if (attendance.MemberVisit != null)
+            {
+                attendance.MemberVisit.IsDeleted = true;
+                uow.MemberVisits.Update(attendance.MemberVisit);
+            }
+
             await uow.CompleteAsync();
 
             return (true, null);
@@ -370,7 +392,7 @@ namespace FitTrack_Pro.Services
             ScheduleTime = c.ScheduleTime,
             DurationInMinutes = c.DurationInMinutes,
             MaxCapacity = c.MaxCapacity,
-            AttendeeCount = c.Attendees?.Count ?? 0,
+            AttendeeCount = c.Attendees?.Count(a => !a.IsDeleted) ?? 0,
             CreatedAt = c.CreatedAt
         };
     }

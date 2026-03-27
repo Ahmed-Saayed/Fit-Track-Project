@@ -172,5 +172,23 @@ namespace FitTrack_Pro.Controllers
             TempData["Success"] = "Member assigned to class successfully.";
             return RedirectToAction(nameof(Details), new { id = model.GymClassId });
         }
+
+        // ════════════════════════════════════════════════════════
+        //  POST /GymClasses/RemoveMember
+        // ════════════════════════════════════════════════════════
+        [HttpPost, ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> RemoveMember(int gymClassId, int memberId)
+        {
+            var (success, error) = await gymClassService.RemoveMemberFromClassAsync(gymClassId, memberId);
+            if (!success)
+            {
+                TempData["Error"] = error;
+                return RedirectToAction(nameof(Details), new { id = gymClassId });
+            }
+
+            TempData["Success"] = "Member removed from class successfully.";
+            return RedirectToAction(nameof(Details), new { id = gymClassId });
+        }
     }
 }

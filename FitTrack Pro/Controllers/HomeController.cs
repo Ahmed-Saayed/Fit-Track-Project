@@ -74,7 +74,7 @@ namespace FitTrack_Pro.Controllers
 			if (todaysClassesWithCapacity.Any(c => c.MaxCapacity > 0))
 			{
 				var totalCapacity = todaysClassesWithCapacity.Sum(c => c.MaxCapacity);
-				var totalAttendees = todaysClassesWithCapacity.Sum(c => c.Attendees.Count);
+				var totalAttendees = todaysClassesWithCapacity.Sum(c => c.Attendees.Count(a => !a.IsDeleted));
 				classFillRate = (int)Math.Round((double)totalAttendees / totalCapacity * 100);
 			}
 
