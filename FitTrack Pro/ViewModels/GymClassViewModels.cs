@@ -52,6 +52,16 @@ namespace FitTrack_Pro.ViewModels
         public int MaxCapacity { get; set; }
         public int AttendeeCount { get; set; }
         public DateTime CreatedAt { get; set; }
+
+        public List<AttendeeViewModel> Attendees { get; set; } = [];
+    }
+
+    public class AttendeeViewModel
+    {
+        public int MemberId { get; set; }
+        public string MemberName { get; set; } = string.Empty;
+        public string MemberPhoneNumber { get; set; } = string.Empty;
+        public DateTime AttendanceDate { get; set; }
     }
 
     // ════════════════════════════════════════════════════════════════
@@ -108,5 +118,24 @@ namespace FitTrack_Pro.ViewModels
         public string DayName => Date.ToString("ddd");
         public int DayNumber => Date.Day;
         public List<GymClassRowViewModel> Classes { get; set; } = [];
+    }
+
+    // ════════════════════════════════════════════════════════════════
+    //  ASSIGN MEMBER FORM
+    // ════════════════════════════════════════════════════════════════
+    public class GymClassAssignMemberViewModel
+    {
+        public int GymClassId { get; set; }
+        public string GymClassName { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Please select a member")]
+        [Display(Name = "Member")]
+        public int MemberId { get; set; }
+
+        [Required(ErrorMessage = "Attendance date is required")]
+        [Display(Name = "Attendance Date")]
+        public DateTime AttendanceDate { get; set; } = DateTime.Now;
+
+        public IEnumerable<SelectListItem> MemberOptions { get; set; } = [];
     }
 }

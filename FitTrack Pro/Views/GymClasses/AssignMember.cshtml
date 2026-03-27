@@ -1,0 +1,121 @@
+@model FitTrack_Pro.ViewModels.GymClassAssignMemberViewModel
+@{
+    ViewData["Title"] = "Assign Member";
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Syne:wght@500;600&display=swap" rel="stylesheet">
+
+<style>
+    .f-wrap { font-family:'DM Sans',sans-serif; }
+    .f-breadcrumb { display:flex; align-items:center; gap:6px; font-size:13px; color:#6b7280; margin-bottom:1.75rem; }
+    .f-breadcrumb a { color:#1a56db; text-decoration:none; }
+    .f-breadcrumb a:hover { text-decoration:underline; }
+    .f-page-header { display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:1.75rem; }
+    .f-page-header h1 { font-family:'Syne',sans-serif; font-size:22px; font-weight:600; letter-spacing:-.3px; margin:0; }
+    .f-page-header p { font-size:13px; color:#6b7280; margin:3px 0 0; }
+    .f-card { background:#fff; border:0.5px solid #e5e7eb; border-radius:12px; overflow:hidden; }
+    .f-card-header { padding:13px 20px; border-bottom:0.5px solid #e5e7eb; background:#f9fafb; display:flex; align-items:center; gap:8px; }
+    .f-card-header svg { width:15px; height:15px; stroke:#1a56db; flex-shrink:0; }
+    .f-card-title { font-family:'Syne',sans-serif; font-size:14px; font-weight:500; margin:0; }
+    .f-card-body { padding:20px; display:flex; flex-direction:column; gap:16px; }
+    .f-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .f-row.full { grid-template-columns:1fr; }
+    @@media (max-width:560px) { .f-row { grid-template-columns:1fr; } }
+    .f-field { display:flex; flex-direction:column; gap:5px; }
+    .f-field > label { font-size:11px; font-weight:500; color:#6b7280; letter-spacing:.4px; text-transform:uppercase; }
+    .f-iw { position:relative; }
+    .f-ico { position:absolute; left:10px; top:50%; transform:translateY(-50%); width:14px; height:14px; stroke:#9ca3af; pointer-events:none; }
+    .f-iw input, .f-iw select, .f-iw textarea { width:100%; background:#fff; border:0.5px solid #d1d5db; border-radius:8px; padding:9px 12px 9px 32px; font-family:'DM Sans',sans-serif; font-size:14px; color:#111827; transition:border-color .15s,box-shadow .15s; outline:none; -webkit-appearance:none; appearance:none; }
+    .f-iw input:focus, .f-iw select:focus { border-color:#1a56db; box-shadow:0 0 0 3px rgba(26,86,219,.1); }
+    .f-iw input.is-invalid, .f-iw select.is-invalid { border-color:#e24b4a; box-shadow:0 0 0 3px rgba(226,75,74,.08); }
+    .f-err { font-size:11px; color:#e24b4a; }
+    .f-footer { padding:13px 20px; border-top:0.5px solid #e5e7eb; background:#f9fafb; display:flex; align-items:center; justify-content:flex-end; gap:10px; }
+    .f-btn { padding:8px 18px; border-radius:8px; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:500; cursor:pointer; transition:all .15s; border:0.5px solid transparent; display:inline-flex; align-items:center; gap:6px; text-decoration:none; }
+    .f-btn svg { width:14px; height:14px; flex-shrink:0; }
+    .f-btn-ghost { background:transparent; border-color:#d1d5db; color:#6b7280; }
+    .f-btn-ghost:hover { background:#f3f4f6; color:#111827; }
+    .f-btn-primary { background:#1a56db; border-color:#1a56db; color:#fff; }
+    .f-btn-primary:hover { filter:brightness(1.08); }
+</style>
+
+<div class="f-wrap">
+    <div class="f-breadcrumb">
+        <a asp-action="Index">Gym Classes</a>
+        <span>›</span>
+        <a asp-action="Details" asp-route-id="@Model.GymClassId">@Model.GymClassName</a>
+        <span>›</span>
+        <span>Assign member</span>
+    </div>
+
+    <div class="f-page-header">
+        <div>
+            <h1>Assign member</h1>
+            <p>Select a member to assign to <strong>@Model.GymClassName</strong></p>
+        </div>
+    </div>
+
+    <div class="f-card">
+        <div class="f-card-header">
+            <svg viewBox="0 0 16 16" fill="none" stroke-width="1.5">
+                <path d="M8 3v10M3 8h10" />
+            </svg>
+            <span class="f-card-title">Assignment details</span>
+        </div>
+
+        <form asp-action="AssignMember" method="post" id="assignForm" class="f-card-body" novalidate>
+            @Html.AntiForgeryToken()
+            <input asp-for="GymClassId" type="hidden" />
+            <input asp-for="GymClassName" type="hidden" />
+
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger small rounded" role="alert"></div>
+
+            <div class="f-row">
+                <div class="f-field">
+                    <label asp-for="MemberId">Member</label>
+                    <div class="f-iw">
+                        <svg class="f-ico" viewBox="0 0 16 16" fill="none" stroke-width="1.5">
+                            <circle cx="8" cy="5" r="3" />
+                            <path d="M2 13c0-3 2.5-5 6-5s6 2 6 5" />
+                        </svg>
+                        <select asp-for="MemberId" asp-items="Model.MemberOptions"
+                                class="@(ViewData.ModelState["MemberId"]?.Errors.Any() == true ? "is-invalid" : "")">
+                            <option value="">— Select member —</option>
+                        </select>
+                    </div>
+                    <span asp-validation-for="MemberId" class="f-err"></span>
+                </div>
+                <div class="f-field">
+                    <label asp-for="AttendanceDate">Attendance date</label>
+                    <div class="f-iw">
+                        <svg class="f-ico" viewBox="0 0 16 16" fill="none" stroke-width="1.5">
+                            <rect x="2" y="3" width="12" height="11" rx="2" />
+                            <path d="M5 1v4M11 1v4M2 8h12" />
+                        </svg>
+                        <input asp-for="AttendanceDate" type="datetime-local"
+                               value="@Model.AttendanceDate.ToString("yyyy-MM-ddTHH:mm")"
+                               class="@(ViewData.ModelState["AttendanceDate"]?.Errors.Any() == true ? "is-invalid" : "")" />
+                    </div>
+                    <span asp-validation-for="AttendanceDate" class="f-err"></span>
+                </div>
+            </div>
+        </form>
+
+        <div class="f-footer">
+            <a asp-action="Details" asp-route-id="@Model.GymClassId" class="f-btn f-btn-ghost">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 3L5 8l5 5" /></svg>
+                Cancel
+            </a>
+            <button type="submit" form="assignForm" class="f-btn f-btn-primary">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M13 3l-6 8-4-4" />
+                </svg>
+                Assign member
+            </button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

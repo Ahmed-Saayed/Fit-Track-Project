@@ -74,7 +74,16 @@ namespace FitTrack_Pro.Services
                 DurationInMinutes = gymClass.DurationInMinutes,
                 MaxCapacity = gymClass.MaxCapacity,
                 AttendeeCount = gymClass.Attendees?.Count ?? 0,
-                CreatedAt = gymClass.CreatedAt
+                CreatedAt = gymClass.CreatedAt,
+                Attendees = gymClass.Attendees?
+                    .Where(a => !a.IsDeleted)
+                    .Select(a => new AttendeeViewModel
+                    {
+                        MemberId = a.MemberId,
+                        MemberName = a.Member?.FullName ?? "Unknown",
+                        MemberPhoneNumber = a.Member?.PhoneNumber ?? "—",
+                        AttendanceDate = a.AttendanceDate
+                    }).ToList() ?? []
             };
         }
 
@@ -211,6 +220,76 @@ namespace FitTrack_Pro.Services
             }
 
             return vm;
+        }
+
+        // ────────────────────────────────────────────────────────────
+        //  ASSIGN MEMBER
+        // ────────────────────────────────────────────────────────────
+        public async Task<GymClassAssignMemberViewModel?> GetAssignMemberFormAsync(int gymClassId)
+        {
+            var gymClass = await uow.GymClasses.GetByIdAsync(gymClassId);
+            if (gymClass is null || gymClass.IsDeleted) return null;
+
+            var members = await uow.Members.GetAllAsync()
+                .Where(m => !m.IsDeleted)
+                .OrderBy(m => m.FullName)
+                .ToListAsync();
+
+            return new GymClassAssignMemberViewModel
+            {
+                GymClassId = gymClass.Id,
+                GymClassName = gymClass.Name,
+                AttendanceDate = gymClass.ScheduleTime,
+                MemberOptions = members.Select(m => new SelectListItem
+                {
+                    Value = m.Id.ToString(),
+                    Text = $"{m.FullName} ({m.PhoneNumber})"
+                })
+            };
+        }
+
+        public async Task<(bool Success, string? Error)> AssignMemberAsync(GymClassAssignMemberViewModel model)
+        {
+            var gymClass = await uow.GymClasses.GetAllAsync()
+                .Include(c => c.Attendees)
+                .FirstOrDefaultAsync(c => c.Id == model.GymClassId && !c.IsDeleted);
+
+            if (gymClass is null) return (false, "Gym class not found.");
+
+            if (gymClass.Attendees.Count >= gymClass.MaxCapacity)
+                return (false, "This class has reached its maximum capacity.");
+
+            if (gymClass.Attendees.Any(a => a.MemberId == model.MemberId && !a.IsDeleted))
+                return (false, "This member is already assigned to this class.");
+
+            // Create a minimal MemberVisit as required by ClassAttendance
+            var visit = new MemberVisit
+            {
+                CreatedAt = DateTime.Now,
+                Height = 0,
+                Weight = 0,
+                BMI = 0,
+                Notes = $"Assigned to class: {gymClass.Name}"
+            };
+
+            await uow.MemberVisits.AddAsync(visit);
+            // We need to commit here to get the Visit ID if the UoW doesn't handle it automatically 
+            // but usually IUnitOfWork.CompleteAsync() will handle the order.
+            // However, ClassAttendance needs MemberVisitId.
+
+            var attendance = new ClassAttendance
+            {
+                GymClassId = model.GymClassId,
+                MemberId = model.MemberId,
+                MemberVisit = visit, // Link the object, EF will handle the ID
+                AttendanceDate = model.AttendanceDate,
+                CreatedAt = DateTime.Now
+            };
+
+            await uow.ClassAttendaces.AddAsync(attendance);
+            await uow.CompleteAsync();
+
+            return (true, null);
         }
 
         private void CalculateOverlaps(List<GymClassRowViewModel> dayClasses)

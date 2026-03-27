@@ -131,5 +131,46 @@ namespace FitTrack_Pro.Controllers
             TempData["Success"] = "Gym class deleted successfully.";
             return RedirectToAction(nameof(Index));
         }
+
+        // ════════════════════════════════════════════════════════
+        //  GET  /GymClasses/AssignMember/5
+        // ════════════════════════════════════════════════════════
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> AssignMember(int id)
+        {
+            var vm = await gymClassService.GetAssignMemberFormAsync(id);
+            if (vm is null) return NotFound();
+            return View(vm);
+        }
+
+        // ════════════════════════════════════════════════════════
+        //  POST /GymClasses/AssignMember
+        // ════════════════════════════════════════════════════════
+        [HttpPost, ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> AssignMember(GymClassAssignMemberViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                var formVm = await gymClassService.GetAssignMemberFormAsync(model.GymClassId);
+                model.MemberOptions = formVm?.MemberOptions ?? [];
+                model.GymClassName = formVm?.GymClassName ?? "Unknown";
+                return View(model);
+            }
+
+            var (success, error) = await gymClassService.AssignMemberAsync(model);
+            if (!success)
+            {
+                ModelState.AddModelError(string.Empty, error!);
+                var formVm = await gymClassService.GetAssignMemberFormAsync(model.GymClassId);
+                model.MemberOptions = formVm?.MemberOptions ?? [];
+                model.GymClassName = formVm?.GymClassName ?? "Unknown";
+                return View(model);
+            }
+
+            TempData["Success"] = "Member assigned to class successfully.";
+            return RedirectToAction(nameof(Details), new { id = model.GymClassId });
+        }
     }
 }
