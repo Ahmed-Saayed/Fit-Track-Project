@@ -9,6 +9,6 @@ namespace FitTrack_Pro.Models
 		public DateTime CreatedAt { get; set; } = DateTime.Now;
 		public string? CreatedBy { get; set; }
 
-		public bool IsDeleted { get; set; } = false;
+		public bool IsDeleted { get; set; } = false ;
 	}
 }

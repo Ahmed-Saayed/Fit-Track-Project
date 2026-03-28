@@ -474,6 +474,10 @@
                 </svg>
                 Back
             </a>
+            <a asp-action="AssignPlan" asp-route-id="@Model.Id" class="d-btn d-btn-ghost" style="border-color:#1a56db; color:#1a56db">
+                <i class="fas fa-plus-circle"></i>
+                Assign plan
+            </a>
             <a asp-action="Edit" asp-route-id="@Model.Id" class="d-btn d-btn-primary">
                 <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
                     <path d="M10 2l4 4-7 7H3v-4l7-7z" />
@@ -615,6 +619,12 @@
                                 <div class="d-progress-fill @fillCls" style="width:@pct%"></div>
                             </div>
                         </div>
+
+                        <div class="mt-4">
+                            <a asp-action="AssignPlan" asp-route-id="@Model.Id" class="d-btn d-btn-ghost w-100 justify-content-center" style="border-color:#1a56db; color:#1a56db">
+                                <i class="fas fa-arrow-up me-2"></i>Upgrade / Renew Plan
+                            </a>
+                        </div>
                     }
                     else
                     {
@@ -660,6 +670,7 @@
                                     <th>End</th>
                                     <th>Paid</th>
                                     <th>Status</th>
+                                    <th style="text-align:right">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -681,6 +692,14 @@
                                                 <span class="d-hist-badge dhb-expired">Expired</span>
                                             }
                                         </td>
+                                        <td style="text-align:right">
+                                            <button type="button" class="btn btn-link p-0 text-danger border-0"
+                                                    title="Delete Subscription"
+                                                    data-bs-toggle="modal" data-bs-target="#deleteSubModal"
+                                                    data-subid="@s.Id" data-planname="@s.PlanName">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </td>
                                     </tr>
                                 }
                             </tbody>
@@ -692,3 +711,45 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="deleteSubModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border:0.5px solid #e5e7eb;border-radius:12px;font-family:'DM Sans',sans-serif">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title" style="font-family:'Syne',sans-serif;font-size:16px;color:#A32D2D">Delete Subscription</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" style="font-size:14px;color:#374151">
+                Are you sure you want to delete the <strong id="del-plan-name"></strong> subscription?
+                <br><span style="font-size:12px;color:#9ca3af">This action cannot be undone.</span>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button class="d-btn d-btn-ghost" data-bs-dismiss="modal" style="font-size:13px">Cancel</button>
+                <form asp-action="DeleteSubscription" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" id="del-sub-id" />
+                    <input type="hidden" name="memberId" value="@Model.Id" />
+                    <button type="submit" class="d-btn d-btn-primary" style="background:#e24b4a;border-color:#e24b4a;font-size:13px">
+                        Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const deleteSubModal = document.getElementById('deleteSubModal');
+        if (deleteSubModal) {
+            deleteSubModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                const subId = button.getAttribute('data-subid');
+                const planName = button.getAttribute('data-planname');
+                
+                document.getElementById('del-sub-id').value = subId;
+                document.getElementById('del-plan-name').textContent = planName;
+            });
+        }
+    </script>
+}

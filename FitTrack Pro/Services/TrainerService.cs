@@ -98,7 +98,7 @@ namespace FitTrack_Pro.Services
                 Password = model.Password, 
                 Role = "Trainer"
             };
-             string userId = await _accountHelper.RegisterUser(registerModel);
+             string userId = await _accountHelper.RegisterUser(registerModel, signIn: false);
             if(userId == null)
                 return (false, "Failed to create user account for the trainer.", 0);    
             var trainer = new Trainer
