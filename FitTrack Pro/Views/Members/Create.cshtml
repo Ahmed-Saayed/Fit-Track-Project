@@ -1,800 +1,800 @@
 ﻿@model FitTrack_Pro.ViewModels.MemberFormViewModel
 @{
- var isEdit = Model.Id !=0;
- ViewData["Title"] = isEdit ? "Edit Member" : "Add Member";
+    var isEdit = Model.Id != 0;
+    ViewData["Title"] = isEdit ? "Edit Member" : "Add Member";
 
- var nameParts = Model.FullName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
- var initials = nameParts.Length >=2
- ? $"{nameParts[0][0]}{nameParts[^1][0]}"
- : (nameParts.Length ==1 && nameParts[0].Length >0 ? nameParts[0][..Math.Min(2, nameParts[0].Length)] : "?");
- initials = initials.ToUpper();
- var memberAge = Model.BirthDate != default
- ? (int)((DateTime.Today - Model.BirthDate).TotalDays /365.25) :0;
+    var nameParts = Model.FullName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+    var initials = nameParts.Length >= 2
+    ? $"{nameParts[0][0]}{nameParts[^1][0]}"
+    : (nameParts.Length == 1 && nameParts[0].Length > 0 ? nameParts[0][..Math.Min(2, nameParts[0].Length)] : "?");
+    initials = initials.ToUpper();
+    var memberAge = Model.BirthDate != default
+    ? (int)((DateTime.Today - Model.BirthDate).TotalDays / 365.25) : 0;
 }
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Syne:wght@500;600&display=swap" rel="stylesheet">
 
 <style>
- .f-wrap {
- font-family: 'DM Sans',sans-serif;
- }
+    .f-wrap {
+        font-family: 'DM Sans',sans-serif;
+    }
 
- .f-breadcrumb {
- display: flex;
- align-items: center;
- gap:6px;
- font-size:13px;
- color: #6b7280;
- margin-bottom:1.75rem;
- }
+    .f-breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        color: #6b7280;
+        margin-bottom: 1.75rem;
+    }
 
- .f-breadcrumb a {
- color: #1a56db;
- text-decoration: none;
- }
+        .f-breadcrumb a {
+            color: #1a56db;
+            text-decoration: none;
+        }
 
- .f-breadcrumb a:hover {
- text-decoration: underline;
- }
+            .f-breadcrumb a:hover {
+                text-decoration: underline;
+            }
 
- .f-page-header {
- display: flex;
- align-items: flex-start;
- justify-content: space-between;
- flex-wrap: wrap;
- gap:12px;
- margin-bottom:1.75rem;
- }
+    .f-page-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 1.75rem;
+    }
 
- .f-page-header h1 {
- font-family: 'Syne',sans-serif;
- font-size:22px;
- font-weight:600;
- letter-spacing: -.3px;
- margin:0;
- }
+        .f-page-header h1 {
+            font-family: 'Syne',sans-serif;
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: -.3px;
+            margin: 0;
+        }
 
- .f-page-header p {
- font-size:13px;
- color: #6b7280;
- margin:3px00;
- }
+        .f-page-header p {
+            font-size: 13px;
+            color: #6b7280;
+            margin: 3px00;
+        }
 
- .f-id-badge {
- display: inline-flex;
- align-items: center;
- gap:5px;
- background: #e8effe;
- color: #185FA5;
- font-size:12px;
- font-weight:500;
- padding:4px10px;
- border-radius:20px;
- border:0.5px solid #B5D4F4;
- white-space: nowrap;
- align-self: flex-start;
- }
+    .f-id-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: #e8effe;
+        color: #185FA5;
+        font-size: 12px;
+        font-weight: 500;
+        padding: 4px10px;
+        border-radius: 20px;
+        border: 0.5px solid #B5D4F4;
+        white-space: nowrap;
+        align-self: flex-start;
+    }
 
- .f-layout {
- display: grid;
- grid-template-columns:200px1fr;
- gap:20px;
- align-items: start;
- }
+    .f-layout {
+        display: grid;
+        grid-template-columns: 200px1fr;
+        gap: 20px;
+        align-items: start;
+    }
 
- @@media (max-width:680px) {
- .f-layout {
- grid-template-columns:1fr;
- }
- }
+    @@media (max-width:680px) {
+        .f-layout {
+            grid-template-columns: 1fr;
+        }
+    }
 
- /* Profile sidebar */
- .f-profile {
- background: #fff;
- border:0.5px solid #e5e7eb;
- border-radius:12px;
- padding:1.25rem1rem;
- text-align: center;
- }
+    /* Profile sidebar */
+    .f-profile {
+        background: #fff;
+        border: 0.5px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 1.25rem1rem;
+        text-align: center;
+    }
 
- .f-avatar {
- width:68px;
- height:68px;
- border-radius:50%;
- background: #e8effe;
- border:2px solid #B5D4F4;
- display: flex;
- align-items: center;
- justify-content: center;
- margin:0 auto10px;
- font-family: 'Syne',sans-serif;
- font-size:20px;
- font-weight:600;
- color: #185FA5;
- }
+    .f-avatar {
+        width: 68px;
+        height: 68px;
+        border-radius: 50%;
+        background: #e8effe;
+        border: 2px solid #B5D4F4;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto10px;
+        font-family: 'Syne',sans-serif;
+        font-size: 20px;
+        font-weight: 600;
+        color: #185FA5;
+    }
 
- .f-profile-name {
- font-family: 'Syne',sans-serif;
- font-size:14px;
- font-weight:600;
- margin:0;
- }
+    .f-profile-name {
+        font-family: 'Syne',sans-serif;
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0;
+    }
 
- .f-profile-phone {
- font-size:12px;
- color: #6b7280;
- margin:3px00;
- }
+    .f-profile-phone {
+        font-size: 12px;
+        color: #6b7280;
+        margin: 3px00;
+    }
 
- .f-chip {
- display: inline-block;
- margin-top:8px;
- padding:3px10px;
- border-radius:20px;
- font-size:11px;
- font-weight:500;
- background: #f3f4f6;
- color: #6b7280;
- border:0.5px solid #e5e7eb;
- }
+    .f-chip {
+        display: inline-block;
+        margin-top: 8px;
+        padding: 3px10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 500;
+        background: #f3f4f6;
+        color: #6b7280;
+        border: 0.5px solid #e5e7eb;
+    }
 
- .f-meta {
- margin-top:14px;
- border-top:0.5px solid #e5e7eb;
- padding-top:12px;
- display: flex;
- flex-direction: column;
- gap:8px;
- text-align: left;
- }
+    .f-meta {
+        margin-top: 14px;
+        border-top: 0.5px solid #e5e7eb;
+        padding-top: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        text-align: left;
+    }
 
- .f-meta-row {
- display: flex;
- gap:6px;
- font-size:12px;
- }
+    .f-meta-row {
+        display: flex;
+        gap: 6px;
+        font-size: 12px;
+    }
 
- .f-meta-lbl {
- color: #9ca3af;
- flex-shrink:0;
- width:55px;
- }
+    .f-meta-lbl {
+        color: #9ca3af;
+        flex-shrink: 0;
+        width: 55px;
+    }
 
- .f-meta-val {
- font-weight:500;
- overflow-wrap: anywhere;
- color: #111827;
- }
+    .f-meta-val {
+        font-weight: 500;
+        overflow-wrap: anywhere;
+        color: #111827;
+    }
 
- /* Form card */
- .f-card {
- background: #fff;
- border:0.5px solid #e5e7eb;
- border-radius:12px;
- overflow: hidden;
- }
+    /* Form card */
+    .f-card {
+        background: #fff;
+        border: 0.5px solid #e5e7eb;
+        border-radius: 12px;
+        overflow: hidden;
+    }
 
- .f-card-header {
- padding:13px20px;
- border-bottom:0.5px solid #e5e7eb;
- background: #f9fafb;
- display: flex;
- align-items: center;
- gap:8px;
- }
+    .f-card-header {
+        padding: 13px20px;
+        border-bottom: 0.5px solid #e5e7eb;
+        background: #f9fafb;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
 
- .f-card-header svg {
- width:15px;
- height:15px;
- stroke: #1a56db;
- flex-shrink:0;
- }
+        .f-card-header svg {
+            width: 15px;
+            height: 15px;
+            stroke: #1a56db;
+            flex-shrink: 0;
+        }
 
- .f-card-title {
- font-family: 'Syne',sans-serif;
- font-size:14px;
- font-weight:500;
- margin:0;
- }
+    .f-card-title {
+        font-family: 'Syne',sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+        margin: 0;
+    }
 
- .f-card-body {
- padding:20px;
- display: flex;
- flex-direction: column;
- gap:16px;
- }
+    .f-card-body {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
 
- /* Fields */
- .f-row {
- display: grid;
- grid-template-columns:1fr1fr;
- gap:14px;
- }
+    /* Fields */
+    .f-row {
+        display: grid;
+        grid-template-columns: 1fr1fr;
+        gap: 14px;
+    }
 
- .f-row.full {
- grid-template-columns:1fr;
- }
+        .f-row.full {
+            grid-template-columns: 1fr;
+        }
 
- @@media (max-width:560px) {
- .f-row {
- grid-template-columns:1fr;
- }
- }
+    @@media (max-width:560px) {
+        .f-row {
+            grid-template-columns: 1fr;
+        }
+    }
 
- .f-field {
- display: flex;
- flex-direction: column;
- gap:5px;
- }
+    .f-field {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
 
- .f-field > label {
- font-size:11px;
- font-weight:500;
- color: #6b7280;
- letter-spacing: .4px;
- text-transform: uppercase;
- }
+        .f-field > label {
+            font-size: 11px;
+            font-weight: 500;
+            color: #6b7280;
+            letter-spacing: .4px;
+            text-transform: uppercase;
+        }
 
- .f-iw {
- position: relative;
- }
+    .f-iw {
+        position: relative;
+    }
 
- .f-ico {
- position: absolute;
- left:10px;
- top:50%;
- transform: translateY(-50%);
- width:14px;
- height:14px;
- stroke: #9ca3af;
- pointer-events: none;
- }
+    .f-ico {
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 14px;
+        height: 14px;
+        stroke: #9ca3af;
+        pointer-events: none;
+    }
 
- .f-ico.top {
- top:12px;
- transform: none;
- }
+        .f-ico.top {
+            top: 12px;
+            transform: none;
+        }
 
- .f-iw input, .f-iw select, .f-iw textarea {
- width:100%;
- background: #fff;
- border:0.5px solid #d1d5db;
- border-radius:8px;
- padding:9px12px9px32px;
- font-family: 'DM Sans',sans-serif;
- font-size:14px;
- color: #111827;
- transition: border-color .15s,box-shadow .15s;
- outline: none;
- -webkit-appearance: none;
- appearance: none;
- }
+    .f-iw input, .f-iw select, .f-iw textarea {
+        width: 100%;
+        background: #fff;
+        border: 0.5px solid #d1d5db;
+        border-radius: 8px;
+        padding: 9px12px9px32px;
+        font-family: 'DM Sans',sans-serif;
+        font-size: 14px;
+        color: #111827;
+        transition: border-color .15s,box-shadow .15s;
+        outline: none;
+        -webkit-appearance: none;
+        appearance: none;
+    }
 
- .f-iw textarea {
- resize: vertical;
- min-height:80px;
- padding-top:9px;
- }
+    .f-iw textarea {
+        resize: vertical;
+        min-height: 80px;
+        padding-top: 9px;
+    }
 
- .f-iw input:focus, .f-iw select:focus, .f-iw textarea:focus {
- border-color: #1a56db;
- box-shadow:0003px rgba(26,86,219,.1);
- }
+        .f-iw input:focus, .f-iw select:focus, .f-iw textarea:focus {
+            border-color: #1a56db;
+            box-shadow: 0003px rgba(26,86,219,.1);
+        }
 
- .f-iw input.is-invalid {
- border-color: #e24b4a;
- box-shadow:0003px rgba(226,75,74,.08);
- }
+    .f-iw input.is-invalid {
+        border-color: #e24b4a;
+        box-shadow: 0003px rgba(226,75,74,.08);
+    }
 
- .f-hint {
- font-size:11px;
- color: #9ca3af;
- margin-top:1px;
- }
+    .f-hint {
+        font-size: 11px;
+        color: #9ca3af;
+        margin-top: 1px;
+    }
 
- .f-err {
- font-size:11px;
- color: #e24b4a;
- }
+    .f-err {
+        font-size: 11px;
+        color: #e24b4a;
+    }
 
- /* Gender */
- .f-gender {
- display: flex;
- gap:8px;
- }
+    /* Gender */
+    .f-gender {
+        display: flex;
+        gap: 8px;
+    }
 
- .f-gopt {
- flex:1;
- position: relative;
- }
+    .f-gopt {
+        flex: 1;
+        position: relative;
+    }
 
- .f-gopt input[type="radio"] {
- position: absolute;
- opacity:0;
- width:0;
- height:0;
- }
+        .f-gopt input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
 
- .f-gopt label {
- display: flex;
- align-items: center;
- justify-content: center;
- gap:5px;
- padding:9px12px;
- border:0.5px solid #d1d5db;
- border-radius:8px;
- font-size:13px;
- font-weight:500;
- text-transform: none;
- letter-spacing:0;
- color: #6b7280;
- cursor: pointer;
- transition: all .15s;
- background: #fff;
- margin:0;
- }
+        .f-gopt label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            padding: 9px12px;
+            border: 0.5px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            text-transform: none;
+            letter-spacing: 0;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all .15s;
+            background: #fff;
+            margin: 0;
+        }
 
- .f-gopt input:checked + label {
- border-color: #1a56db;
- background: #e8effe;
- color: #185FA5;
- }
+        .f-gopt input:checked + label {
+            border-color: #1a56db;
+            background: #e8effe;
+            color: #185FA5;
+        }
 
- .f-gopt label:hover {
- border-color: #d1d5db;
- background: #f9fafb;
- }
+        .f-gopt label:hover {
+            border-color: #d1d5db;
+            background: #f9fafb;
+        }
 
- /* Divider */
- .f-divider {
- display: flex;
- align-items: center;
- gap:10px;
- color: #9ca3af;
- font-size:11px;
- letter-spacing: .5px;
- text-transform: uppercase;
- }
+    /* Divider */
+    .f-divider {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #9ca3af;
+        font-size: 11px;
+        letter-spacing: .5px;
+        text-transform: uppercase;
+    }
 
- .f-divider::before, .f-divider::after {
- content: '';
- flex:1;
- height:0.5px;
- background: #e5e7eb;
- }
+        .f-divider::before, .f-divider::after {
+            content: '';
+            flex: 1;
+            height: 0.5px;
+            background: #e5e7eb;
+        }
 
- /* Danger zone */
- .f-danger {
- background: #fcebeb;
- border:0.5px solid #F7C1C1;
- border-radius:8px;
- padding:12px14px;
- display: flex;
- align-items: center;
- justify-content: space-between;
- gap:12px;
- flex-wrap: wrap;
- }
+    /* Danger zone */
+    .f-danger {
+        background: #fcebeb;
+        border: 0.5px solid #F7C1C1;
+        border-radius: 8px;
+        padding: 12px14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
 
- .f-danger-title {
- font-size:13px;
- font-weight:500;
- color: #A32D2D;
- margin:0;
- }
+    .f-danger-title {
+        font-size: 13px;
+        font-weight: 500;
+        color: #A32D2D;
+        margin: 0;
+    }
 
- .f-danger-desc {
- font-size:12px;
- color: #791F1F;
- margin:3px00;
- }
+    .f-danger-desc {
+        font-size: 12px;
+        color: #791F1F;
+        margin: 3px00;
+    }
 
- .f-btn-del {
- background: transparent;
- border:0.5px solid #e24b4a;
- border-radius:8px;
- padding:7px14px;
- font-family: 'DM Sans',sans-serif;
- font-size:13px;
- font-weight:500;
- color: #e24b4a;
- cursor: pointer;
- transition: background .15s;
- }
+    .f-btn-del {
+        background: transparent;
+        border: 0.5px solid #e24b4a;
+        border-radius: 8px;
+        padding: 7px14px;
+        font-family: 'DM Sans',sans-serif;
+        font-size: 13px;
+        font-weight: 500;
+        color: #e24b4a;
+        cursor: pointer;
+        transition: background .15s;
+    }
 
- .f-btn-del:hover {
- background: rgba(226,75,74,.08);
- }
+        .f-btn-del:hover {
+            background: rgba(226,75,74,.08);
+        }
 
- /* Footer */
- .f-footer {
- padding:13px20px;
- border-top:0.5px solid #e5e7eb;
- background: #f9fafb;
- display: flex;
- align-items: center;
- justify-content: flex-end;
- gap:10px;
- }
+    /* Footer */
+    .f-footer {
+        padding: 13px20px;
+        border-top: 0.5px solid #e5e7eb;
+        background: #f9fafb;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 10px;
+    }
 
- .f-btn {
- padding:8px18px;
- border-radius:8px;
- font-family: 'DM Sans',sans-serif;
- font-size:14px;
- font-weight:500;
- cursor: pointer;
- transition: all .15s;
- border:0.5px solid transparent;
- display: inline-flex;
- align-items: center;
- gap:6px;
- text-decoration: none;
- }
+    .f-btn {
+        padding: 8px18px;
+        border-radius: 8px;
+        font-family: 'DM Sans',sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all .15s;
+        border: 0.5px solid transparent;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        text-decoration: none;
+    }
 
- .f-btn svg {
- width:14px;
- height:14px;
- flex-shrink:0;
- }
+        .f-btn svg {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+        }
 
- .f-btn-ghost {
- background: transparent;
- border-color: #d1d5db;
- color: #6b7280;
- }
+    .f-btn-ghost {
+        background: transparent;
+        border-color: #d1d5db;
+        color: #6b7280;
+    }
 
- .f-btn-ghost:hover {
- background: #f3f4f6;
- color: #111827;
- }
+        .f-btn-ghost:hover {
+            background: #f3f4f6;
+            color: #111827;
+        }
 
- .f-btn-primary {
- background: #1a56db;
- border-color: #1a56db;
- color: #fff;
- }
+    .f-btn-primary {
+        background: #1a56db;
+        border-color: #1a56db;
+        color: #fff;
+    }
 
- .f-btn-primary:hover {
- filter: brightness(1.08);
- }
+        .f-btn-primary:hover {
+            filter: brightness(1.08);
+        }
 
- .f-btn-primary:active {
- transform: scale(.98);
- }
+        .f-btn-primary:active {
+            transform: scale(.98);
+        }
 </style>
 
 <div class="f-wrap">
 
 
 
- <div class="f-breadcrumb">
- <a asp-action="Index">Members</a>
- <span>›</span>
- @if (isEdit)
- {
- <a asp-action="Details" asp-route-id="@Model.Id">@Model.FullName</a>
- <span>›</span>
- <span>Edit</span>
- }
- else
- {
- <span>Add member</span>
- }
- </div>
+    <div class="f-breadcrumb">
+        <a asp-action="Index">Members</a>
+        <span>›</span>
+        @if (isEdit)
+        {
+            <a asp-action="Details" asp-route-id="@Model.Id">@Model.FullName</a>
+            <span>›</span>
+            <span>Edit</span>
+        }
+        else
+        {
+            <span>Add member</span>
+        }
+    </div>
 
- <div class="f-page-header">
- <div>
- <h1>@(isEdit ? "Edit member" : "Add new member")</h1>
- <p>@(isEdit ? "Update personal information and membership settings" : "Fill in the form below to register a new member")</p>
- </div>
- @if (isEdit)
- {
- <div class="f-id-badge">
- <svg viewBox="001616" fill="none" stroke="currentColor" stroke-width="1.5"
- style="width:12px;height:12px">
- <rect x="2" y="3" width="12" height="10" rx="2" />
- <path d="M57h6M510h4" />
- </svg>
- Member #@Model.Id
- </div>
- }
- </div>
+    <div class="f-page-header">
+        <div>
+            <h1>@(isEdit ? "Edit member" : "Add new member")</h1>
+            <p>@(isEdit ? "Update personal information and membership settings" : "Fill in the form below to register a new member")</p>
+        </div>
+        @if (isEdit)
+        {
+            <div class="f-id-badge">
+                <svg viewBox="001616" fill="none" stroke="currentColor" stroke-width="1.5"
+                     style="width:12px;height:12px">
+                    <rect x="2" y="3" width="12" height="10" rx="2" />
+                    <path d="M57h6M510h4" />
+                </svg>
+                Member #@Model.Id
+            </div>
+        }
+    </div>
 
 
- <div class="f-layout">
-
- 
- <div class="f-profile">
- <div class="f-avatar" id="js-avatar">@initials</div>
- <p class="f-profile-name" id="js-name">@(string.IsNullOrWhiteSpace(Model.FullName) ? "New member" : Model.FullName)</p>
- <p class="f-profile-phone" id="js-phone">@(string.IsNullOrWhiteSpace(Model.PhoneNumber) ? "—" : Model.PhoneNumber)</p>
- <div class="f-chip">@(isEdit ? "Editing" : "New")</div>
- <div class="f-meta">
- <div class="f-meta-row">
- <span class="f-meta-lbl">Barcode</span>
- <span class="f-meta-val" id="js-barcode" style="font-family:monospace;font-size:11px">
- @(string.IsNullOrWhiteSpace(Model.Barcode) ? "—" : Model.Barcode)
- </span>
- </div>
- <div class="f-meta-row">
- <span class="f-meta-lbl">Gender</span>
- <span class="f-meta-val" id="js-gender">@(string.IsNullOrWhiteSpace(Model.Gender) ? "—" : Model.Gender)</span>
- </div>
- @if (isEdit && memberAge >0)
- {
- <div class="f-meta-row">
- <span class="f-meta-lbl">Age</span>
- <span class="f-meta-val">@memberAge yrs</span>
- </div>
- }
- </div>
- </div>
+    <div class="f-layout">
 
  
- <div class="f-card">
- <div class="f-card-header">
- <svg viewBox="001616" fill="none" stroke-width="1.5">
- @if (isEdit)
- {
- <text><path d="M102l44-77H3v-4l7-7z" /></text>
- }
- else
- {
- <text><path d="M83v10M38h10" /></text>
- }
- </svg>
- <span class="f-card-title">Personal information</span>
- </div>
-
- <form asp-action="@(isEdit ? "Edit" : "Create")" method="post"
- id="memberForm" class="f-card-body" novalidate>
- @Html.AntiForgeryToken()
- @if (isEdit)
- {
- <input asp-for="Id" type="hidden" />
- }
-
- <div asp-validation-summary="ModelOnly"
- class="alert alert-danger small rounded" role="alert"></div>
-
- 
- <div class="f-row full">
- <div class="f-field">
- <label asp-for="FullName">Full name</label>
- <div class="f-iw">
- <svg class="f-ico" viewBox="001616" fill="none" stroke-width="1.5">
- <circle cx="8" cy="5" r="3" />
- <path d="M213c0-32.5-56-5s6265" />
- </svg>
- <input asp-for="FullName" id="inp-name"
- class="@(ViewData.ModelState["FullName"]?.Errors.Any() == true ? "is-invalid" : "")"
- placeholder="e.g. Marcus Webb" autocomplete="name"
- oninput="syncPreview()" />
- </div>
- <span asp-validation-for="FullName" class="f-err"></span>
- </div>
- </div>
-
- <div class="f-row">
- <div class="f-field">
- <label asp-for="PhoneNumber">Phone number</label>
- <div class="f-iw">
- <svg class="f-ico" viewBox="001616" fill="none" stroke-width="1.5">
- <path d="M32h3l1.53.5-21.5a990003.53.5l1.5-2L1412v3a11001-11A121200123a110011-1z" />
- </svg>
- <input asp-for="PhoneNumber" id="inp-phone" placeholder="01X XXX XXXX"
- oninput="document.getElementById('js-phone').textContent=this.value||'—'" />
- </div>
- <span asp-validation-for="PhoneNumber" class="f-err"></span>
- </div>
- <div class="f-field">
- <label asp-for="Barcode">Barcode / ID</label>
- <div class="f-iw">
- <svg class="f-ico" viewBox="001616" fill="none" stroke-width="1.5">
- <path d="M23v10M53v10M73v10M103v10M133v10" />
- </svg>
- <input asp-for="Barcode" id="inp-barcode" placeholder="FT-0001"
- oninput="document.getElementById('js-barcode').textContent=this.value||'—'" />
- </div>
- <span class="f-hint">Must be unique across all members</span>
- <span asp-validation-for="Barcode" class="f-err"></span>
- </div>
- </div>
-
- <div class="f-row">
- <div class="f-field">
- <label asp-for="BirthDate">Date of birth</label>
- <div class="f-iw">
- <svg class="f-ico" viewBox="001616" fill="none" stroke-width="1.5">
- <rect x="2" y="3" width="12" height="11" rx="2" />
- <path d="M51v4M111v4M28h12" />
- </svg>
- <input asp-for="BirthDate" type="date" />
- </div>
- <span asp-validation-for="BirthDate" class="f-err"></span>
- </div>
- <div class="f-field">
- <label>Gender</label>
- <div class="f-gender">
- <div class="f-gopt">
- <input type="radio" name="Gender" id="g-male" value="Male"
- onchange="document.getElementById('js-gender').textContent='Male'"
- @(Model.Gender == "Male" || !isEdit ? "checked" : "") />
- <label for="g-male">
- <svg viewBox="001414" fill="none" stroke="currentColor" stroke-width="1.5" style="width:13px;height:13px">
- <circle cx="5" cy="8" r="4" />
- <path d="M82h4v4M122l-55" />
- </svg>
- Male
- </label>
- </div>
- <div class="f-gopt">
- <input type="radio" name="Gender" id="g-female" value="Female"
- onchange="document.getElementById('js-gender').textContent='Female'"
- @(Model.Gender == "Female" ? "checked" : "") />
- <label for="g-female">
- <svg viewBox="001414" fill="none" stroke="currentColor" stroke-width="1.5" style="width:13px;height:13px">
- <circle cx="7" cy="6" r="4" />
- <path d="M710v3M512h4" />
- </svg>
- Female
- </label>
- </div>
- </div>
- </div>
- </div>
-
- <!-- Account fields: Email, Password, Confirm Password (create only) -->
- @if (!isEdit)
- {
- <div class="f-divider">Account</div>
- <div class="f-row full">
- <div class="f-field">
- <label asp-for="UserName">Email address</label>
- <div class="f-iw">
- <svg class="f-ico" viewBox="001616" fill="none" stroke-width="1.5">
- <path d="M34h10v8H3z" />
- <path d="M34l545-4" />
- </svg>
- <input asp-for="UserName" type="email" placeholder="name@example.com" />
- </div>
- <span asp-validation-for="UserName" class="f-err"></span>
- </div>
- </div>
-
- <div class="f-row">
- <div class="f-field">
- <label asp-for="Password">Password</label>
- <div class="f-iw">
- <svg class="f-ico" viewBox="001616" fill="none" stroke-width="1.5">
- <rect x="3" y="7" width="10" height="6" rx="1" />
- <path d="M77V5a2201140v2" />
- </svg>
- <input asp-for="Password" type="password" placeholder="Enter a secure password" autocomplete="new-password" />
- </div>
- <span asp-validation-for="Password" class="f-err"></span>
- </div>
-
- <div class="f-field">
- <label asp-for="ConfirmPassword">Confirm password</label>
- <div class="f-iw">
- <svg class="f-ico" viewBox="001616" fill="none" stroke-width="1.5">
- <rect x="3" y="7" width="10" height="6" rx="1" />
- <path d="M511l224-4" />
- </svg>
- <input asp-for="ConfirmPassword" type="password" placeholder="Repeat the password" autocomplete="new-password" />
- </div>
- <span asp-validation-for="ConfirmPassword" class="f-err"></span>
- </div>
- </div>
- }
-
- <div class="f-divider">Medical</div>
- <div class="f-row full">
- <div class="f-field">
- <label asp-for="MedicalNotes">Medical notes</label>
- <div class="f-iw">
- <svg class="f-ico top" viewBox="001616" fill="none" stroke-width="1.5">
- <path d="M44h8M48h8M412h5" />
- <rect x="1" y="1" width="14" height="14" rx="2" />
- </svg>
- <textarea asp-for="MedicalNotes"
- placeholder="Any relevant medical information (optional)..."></textarea>
- </div>
- </div>
- </div>
-
- @* Danger zone — only shown in edit mode *@
- @if (isEdit)
- {
- <div class="f-divider">Danger zone</div>
- <div class="f-danger">
- <div>
- <p class="f-danger-title">Remove this member</p>
- <p class="f-danger-desc">Soft delete — all data is retained and recoverable.</p>
- </div>
- <button type="button" class="f-btn-del"
- data-bs-toggle="modal" data-bs-target="#confirmDeleteModal">
- Remove member
- </button>
- </div>
- }
-
- </form>
+        <div class="f-profile">
+            <div class="f-avatar" id="js-avatar">@initials</div>
+            <p class="f-profile-name" id="js-name">@(string.IsNullOrWhiteSpace(Model.FullName) ? "New member" : Model.FullName)</p>
+            <p class="f-profile-phone" id="js-phone">@(string.IsNullOrWhiteSpace(Model.PhoneNumber) ? "—" : Model.PhoneNumber)</p>
+            <div class="f-chip">@(isEdit ? "Editing" : "New")</div>
+            <div class="f-meta">
+                <div class="f-meta-row">
+                    <span class="f-meta-lbl">Barcode</span>
+                    <span class="f-meta-val" id="js-barcode" style="font-family:monospace;font-size:11px">
+                        @(string.IsNullOrWhiteSpace(Model.Barcode) ? "—" : Model.Barcode)
+                    </span>
+                </div>
+                <div class="f-meta-row">
+                    <span class="f-meta-lbl">Gender</span>
+                    <span class="f-meta-val" id="js-gender">@(string.IsNullOrWhiteSpace(Model.Gender) ? "—" : Model.Gender)</span>
+                </div>
+                @if (isEdit && memberAge > 0)
+                {
+                    <div class="f-meta-row">
+                        <span class="f-meta-lbl">Age</span>
+                        <span class="f-meta-val">@memberAge yrs</span>
+                    </div>
+                }
+            </div>
+        </div>
 
  
- <div class="f-footer">
- @if (isEdit)
- {
- <a asp-action="Details" asp-route-id="@Model.Id" class="f-btn f-btn-ghost">
- <svg viewBox="001616" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M103L58l55" /></svg>
- Discard
- </a>
- }
- else
- {
- <a asp-action="Index" class="f-btn f-btn-ghost">
- <svg viewBox="001616" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M103L58l55" /></svg>
- Cancel
- </a>
- }
- <button type="submit" form="memberForm" class="f-btn f-btn-primary">
- <svg viewBox="001616" fill="none" stroke="currentColor" stroke-width="1.5">
- <path d="M133l-68-4-4" />
- </svg>
- @(isEdit ? "Save changes" : "Add member")
- </button>
- </div>
- </div>
+        <div class="f-card">
+            <div class="f-card-header">
+                <svg viewBox="001616" fill="none" stroke-width="1.5">
+                    @if (isEdit)
+                    {
+                        <text><path d="M102l44-77H3v-4l7-7z" /></text>
+                    }
+                    else
+                    {
+                        <text><path d="M83v10M38h10" /></text>
+                    }
+                </svg>
+                <span class="f-card-title">Personal information</span>
+            </div>
 
- </div>
+            <form asp-action="@(isEdit ? "Edit" : "Create")" method="post"
+                  id="memberForm" class="f-card-body" novalidate>
+                @Html.AntiForgeryToken()
+                @if (isEdit)
+                {
+                    <input asp-for="Id" type="hidden" />
+                }
+
+                <div asp-validation-summary="ModelOnly"
+                     class="alert alert-danger small rounded" role="alert"></div>
+
+ 
+                <div class="f-row full">
+                    <div class="f-field">
+                        <label asp-for="FullName">Full name</label>
+                        <div class="f-iw">
+                            <svg class="f-ico" viewBox="001616" fill="none" stroke-width="1.5">
+                                <circle cx="8" cy="5" r="3" />
+                                <path d="M213c0-32.5-56-5s6265" />
+                            </svg>
+                            <input asp-for="FullName" id="inp-name"
+                                   class="@(ViewData.ModelState["FullName"]?.Errors.Any() == true ? "is-invalid" : "")"
+                                   placeholder="e.g. Marcus Webb" autocomplete="name"
+                                   oninput="syncPreview()" />
+                        </div>
+                        <span asp-validation-for="FullName" class="f-err"></span>
+                    </div>
+                </div>
+
+                <div class="f-row">
+                    <div class="f-field">
+                        <label asp-for="PhoneNumber">Phone number</label>
+                        <div class="f-iw">
+                            <svg class="f-ico" viewBox="001616" fill="none" stroke-width="1.5">
+                                <path d="M32h3l1.53.5-21.5a990003.53.5l1.5-2L1412v3a11001-11A121200123a110011-1z" />
+                            </svg>
+                            <input asp-for="PhoneNumber" id="inp-phone" placeholder="01X XXX XXXX"
+                                   oninput="document.getElementById('js-phone').textContent=this.value||'—'" />
+                        </div>
+                        <span asp-validation-for="PhoneNumber" class="f-err"></span>
+                    </div>
+                    <div class="f-field">
+                        <label asp-for="Barcode">Barcode / ID</label>
+                        <div class="f-iw">
+                            <svg class="f-ico" viewBox="001616" fill="none" stroke-width="1.5">
+                                <path d="M23v10M53v10M73v10M103v10M133v10" />
+                            </svg>
+                            <input asp-for="Barcode" id="inp-barcode" placeholder="FT-0001"
+                                   oninput="document.getElementById('js-barcode').textContent=this.value||'—'" />
+                        </div>
+                        <span class="f-hint">Must be unique across all members</span>
+                        <span asp-validation-for="Barcode" class="f-err"></span>
+                    </div>
+                </div>
+
+                <div class="f-row">
+                    <div class="f-field">
+                        <label asp-for="BirthDate">Date of birth</label>
+                        <div class="f-iw">
+                            <svg class="f-ico" viewBox="001616" fill="none" stroke-width="1.5">
+                                <rect x="2" y="3" width="12" height="11" rx="2" />
+                                <path d="M51v4M111v4M28h12" />
+                            </svg>
+                            <input asp-for="BirthDate" type="date" />
+                        </div>
+                        <span asp-validation-for="BirthDate" class="f-err"></span>
+                    </div>
+                    <div class="f-field">
+                        <label>Gender</label>
+                        <div class="f-gender">
+                            <div class="f-gopt">
+                                <input type="radio" name="Gender" id="g-male" value="Male"
+                                       onchange="document.getElementById('js-gender').textContent='Male'"
+                                @(Model.Gender == "Male" || !isEdit ? "checked" : "") />
+                                <label for="g-male">
+                                    <svg viewBox="001414" fill="none" stroke="currentColor" stroke-width="1.5" style="width:13px;height:13px">
+                                        <circle cx="5" cy="8" r="4" />
+                                        <path d="M82h4v4M122l-55" />
+                                    </svg>
+                                    Male
+                                </label>
+                            </div>
+                            <div class="f-gopt">
+                                <input type="radio" name="Gender" id="g-female" value="Female"
+                                       onchange="document.getElementById('js-gender').textContent='Female'"
+                                @(Model.Gender == "Female" ? "checked" : "") />
+                                <label for="g-female">
+                                    <svg viewBox="001414" fill="none" stroke="currentColor" stroke-width="1.5" style="width:13px;height:13px">
+                                        <circle cx="7" cy="6" r="4" />
+                                        <path d="M710v3M512h4" />
+                                    </svg>
+                                    Female
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account fields: Email, Password, Confirm Password (create only) -->
+                @if (!isEdit)
+                {
+                    <div class="f-divider">Account</div>
+                    <div class="f-row full">
+                        <div class="f-field">
+                            <label asp-for="UserName">Email address</label>
+                            <div class="f-iw">
+                                <svg class="f-ico" viewBox="001616" fill="none" stroke-width="1.5">
+                                    <path d="M34h10v8H3z" />
+                                    <path d="M34l545-4" />
+                                </svg>
+                                <input asp-for="UserName" type="email" placeholder="name@example.com" />
+                            </div>
+                            <span asp-validation-for="UserName" class="f-err"></span>
+                        </div>
+                    </div>
+
+                    <div class="f-row">
+                        <div class="f-field">
+                            <label asp-for="Password">Password</label>
+                            <div class="f-iw">
+                                <svg class="f-ico" viewBox="001616" fill="none" stroke-width="1.5">
+                                    <rect x="3" y="7" width="10" height="6" rx="1" />
+                                    <path d="M77V5a2201140v2" />
+                                </svg>
+                                <input asp-for="Password" type="password" placeholder="Enter a secure password" autocomplete="new-password" />
+                            </div>
+                            <span asp-validation-for="Password" class="f-err"></span>
+                        </div>
+
+                        <div class="f-field">
+                            <label asp-for="ConfirmPassword">Confirm password</label>
+                            <div class="f-iw">
+                                <svg class="f-ico" viewBox="001616" fill="none" stroke-width="1.5">
+                                    <rect x="3" y="7" width="10" height="6" rx="1" />
+                                    <path d="M511l224-4" />
+                                </svg>
+                                <input asp-for="ConfirmPassword" type="password" placeholder="Repeat the password" autocomplete="new-password" />
+                            </div>
+                            <span asp-validation-for="ConfirmPassword" class="f-err"></span>
+                        </div>
+                    </div>
+                }
+
+                <div class="f-divider">Medical</div>
+                <div class="f-row full">
+                    <div class="f-field">
+                        <label asp-for="MedicalNotes">Medical notes</label>
+                        <div class="f-iw">
+                            <svg class="f-ico top" viewBox="001616" fill="none" stroke-width="1.5">
+                                <path d="M44h8M48h8M412h5" />
+                                <rect x="1" y="1" width="14" height="14" rx="2" />
+                            </svg>
+                            <textarea asp-for="MedicalNotes"
+                                      placeholder="Any relevant medical information (optional)..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                @* Danger zone — only shown in edit mode *@
+                @if (isEdit)
+                {
+                    <div class="f-divider">Danger zone</div>
+                    <div class="f-danger">
+                        <div>
+                            <p class="f-danger-title">Remove this member</p>
+                            <p class="f-danger-desc">Soft delete — all data is retained and recoverable.</p>
+                        </div>
+                        <button type="button" class="f-btn-del"
+                                data-bs-toggle="modal" data-bs-target="#confirmDeleteModal">
+                            Remove member
+                        </button>
+                    </div>
+                }
+
+            </form>
+
+ 
+            <div class="f-footer">
+                @if (isEdit)
+                {
+                    <a asp-action="Details" asp-route-id="@Model.Id" class="f-btn f-btn-ghost">
+                        <svg viewBox="001616" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M103L58l55" /></svg>
+                        Discard
+                    </a>
+                }
+                else
+                {
+                    <a asp-action="Index" class="f-btn f-btn-ghost">
+                        <svg viewBox="001616" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M103L58l55" /></svg>
+                        Cancel
+                    </a>
+                }
+                <button type="submit" form="memberForm" class="f-btn f-btn-primary">
+                    <svg viewBox="001616" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M133l-68-4-4" />
+                    </svg>
+                    @(isEdit ? "Save changes" : "Add member")
+                </button>
+            </div>
+        </div>
+
+    </div>
 </div>
 
 @* Delete modal (edit mode only) *@
 @if (isEdit)
 {
- <div class="modal fade" id="confirmDeleteModal" tabindex="-1">
- <div class="modal-dialog modal-dialog-centered">
- <div class="modal-content" style="border:0.5px solid #e5e7eb;border-radius:12px;font-family:'DM Sans',sans-serif">
- <div class="modal-header border-0 pb-0">
- <h5 class="modal-title" style="font-family:'Syne',sans-serif;font-size:16px;color:#A32D2D">Confirm removal</h5>
- <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
- </div>
- <div class="modal-body" style="font-size:14px;color:#374151">
- Are you sure you want to remove <strong>@Model.FullName</strong>?
- <br><span style="font-size:12px;color:#9ca3af">Soft delete — the record can be recovered later.</span>
- </div>
- <div class="modal-footer border-0 pt-0">
- <button class="f-btn f-btn-ghost" style="font-size:13px" data-bs-dismiss="modal">Cancel</button>
- <form asp-action="Delete" asp-controller="Members" method="post">
- @Html.AntiForgeryToken()
- <input type="hidden" name="id" value="@Model.Id" />
- <button type="submit" class="f-btn f-btn-primary"
- style="background:#e24b4a;border-color:#e24b4a;font-size:13px">
- Remove member
- </button>
- </form>
- </div>
- </div>
- </div>
- </div>
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border:0.5px solid #e5e7eb;border-radius:12px;font-family:'DM Sans',sans-serif">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title" style="font-family:'Syne',sans-serif;font-size:16px;color:#A32D2D">Confirm removal</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" style="font-size:14px;color:#374151">
+                    Are you sure you want to remove <strong>@Model.FullName</strong>?
+                    <br><span style="font-size:12px;color:#9ca3af">Soft delete — the record can be recovered later.</span>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button class="f-btn f-btn-ghost" style="font-size:13px" data-bs-dismiss="modal">Cancel</button>
+                    <form asp-action="Delete" asp-controller="Members" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <button type="submit" class="f-btn f-btn-primary"
+                                style="background:#e24b4a;border-color:#e24b4a;font-size:13px">
+                            Remove member
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 }
 
 @section Scripts {
- @{
- await Html.RenderPartialAsync("_ValidationScriptsPartial");
- }
- <script>
- function syncPreview() {
- const val = document.getElementById('inp-name').value.trim();
- const parts = val.split(' ').filter(Boolean);
- const inits = parts.length >=2
- ? (parts[0][0] + parts[parts.length-1][0]).toUpperCase()
- : (parts[0] ? parts[0].slice(0,2).toUpperCase() : '?');
- document.getElementById('js-avatar').textContent = inits;
- document.getElementById('js-name').textContent = val || 'New member';
- }
- </script>
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        function syncPreview() {
+        const val = document.getElementById('inp-name').value.trim();
+        const parts = val.split(' ').filter(Boolean);
+        const inits = parts.length >=2
+        ? (parts[0][0] + parts[parts.length-1][0]).toUpperCase()
+        : (parts[0] ? parts[0].slice(0,2).toUpperCase() : '?');
+        document.getElementById('js-avatar').textContent = inits;
+        document.getElementById('js-name').textContent = val || 'New member';
+        }
+    </script>
 }
