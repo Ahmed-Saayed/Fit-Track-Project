@@ -38,5 +38,14 @@ namespace FitTrack_Pro.Repositories
                 .Take(50)
                 .ToListAsync();
         }
+
+        public async Task<Trainer?> GetByUserIdWithClassesAndAccountAsync(string userId)
+        {
+            return await _db.Trainers
+                .Include(t => t.Classes)
+                .Include(t => t.UserAccount)
+                .Where(t => t.UserId == userId && !t.IsDeleted)
+                .FirstOrDefaultAsync();
+        }
     }
 }

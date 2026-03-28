@@ -154,6 +154,24 @@ namespace FitTrack_Pro.Services
             return (true, null);
         }
 
+        public async Task<TrainerDetailsViewModel?> GetTrainerProfileByUserIdAsync(string userId)
+        {
+            var trainer = await trainerRepo.GetByUserIdWithClassesAndAccountAsync(userId);
+            if (trainer is null) return null;
+
+            return new TrainerDetailsViewModel
+            {
+                Id = trainer.Id,
+                FullName = trainer.FullName,
+                PhoneNumber = trainer.PhoneNumber,
+                Specialty = trainer.Specialty,
+                SalaryOrPercentage = trainer.SalaryOrPercentage,
+                Email = trainer.UserAccount?.Email ?? string.Empty,
+                CreatedAt = trainer.CreatedAt,
+                AssignedClasses = trainer.Classes?.Select(MapClass) ?? []
+            };
+        }
+
         // ────────────────────────────────────────────────────────────
         //  PRIVATE MAPPERS
         // ────────────────────────────────────────────────────────────

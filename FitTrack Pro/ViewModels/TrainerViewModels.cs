@@ -42,6 +42,7 @@ namespace FitTrack_Pro.ViewModels
         public string PhoneNumber { get; set; } = string.Empty;
         public string Specialty { get; set; } = string.Empty;
         public decimal SalaryOrPercentage { get; set; }
+        public string Email { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }
 
         public IEnumerable<TrainerClassViewModel> AssignedClasses { get; set; } = [];

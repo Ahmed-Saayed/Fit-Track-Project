@@ -120,7 +120,7 @@ namespace FitTrack_Pro.Controllers
 
 			if (userId == null) return Unauthorized();
 
-			var trainer = new List<string>();
+			var trainer = await trainerService.GetTrainerProfileByUserIdAsync(userId);
 
 			if (trainer is null) return NotFound("Trainer profile not found.");
 

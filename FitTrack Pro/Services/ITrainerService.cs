@@ -17,7 +17,6 @@ namespace FitTrack_Pro.Interfaces
 
         Task<(bool Success, string? Error)> UpdateTrainerAsync(TrainerFormViewModel model);
         Task<(bool Success, string? Error)> DeleteTrainerAsync(int id);
-		//GetTrainerProfileByUserIdAsync
-		//Task<List<TrainerSelectItemViewModel>> GetTrainerProfileByUserIdAsync();
-	}
+        Task<TrainerDetailsViewModel?> GetTrainerProfileByUserIdAsync(string userId);
+    }
 }

@@ -14,5 +14,8 @@ namespace FitTrack_Pro.Interfaces
 
         /// <summary>Full-text search on name, phone, or specialty.</summary>
         Task<IEnumerable<Trainer>> SearchAsync(string keyword);
+
+        /// <summary>Returns a trainer including their account and assigned classes.</summary>
+        Task<Trainer?> GetByUserIdWithClassesAndAccountAsync(string userId);
     }
 }
