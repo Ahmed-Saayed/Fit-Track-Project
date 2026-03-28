@@ -47,6 +47,8 @@ builder.Services.AddScoped<ITrainerService, TrainerService>();
 // GymClass service (uses UoW.GymClasses + ITrainerRepository for dropdown)
 builder.Services.AddScoped<IGymClassService, GymClassService>();
 
+builder.Services.AddScoped<IDashboardService, DashboardService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

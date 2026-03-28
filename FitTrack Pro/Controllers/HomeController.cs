@@ -1,5 +1,6 @@
 using Common;
 using FitTrack_Pro.Models;
+using FitTrack_Pro.Services;
 using FitTrack_Pro.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -7,17 +8,12 @@ using System.Diagnostics;
 
 namespace FitTrack_Pro.Controllers
 {
-	public class HomeController : Controller
+	public class HomeController(IDashboardService _service) : Controller
 	{
-		private readonly ApplicationDbContext _context;
-
-		public HomeController(ApplicationDbContext context)
-		{
-			_context = context;
-		}
-		//[Authorize]
+		[Authorize]
 		public async Task<IActionResult> Index()
 		{
+			/*
 			var today = DateTime.Today;
 			var startOfMonth = new DateTime(today.Year, today.Month, 1);
 
@@ -90,8 +86,9 @@ namespace FitTrack_Pro.Controllers
 				GymCapacityPercentage = classFillRate > 0 ? classFillRate : 35, // رقم افتراضي لو مفيش كلاسات
 				RecentActivities = recentAttendances
 			};
-
-			return View(viewModel);
+			*/
+            var viewModel = await _service.GetDashboardDataAsync();
+            return View(viewModel);
 		}
 
 		private static string GetInitials(string fullName)
