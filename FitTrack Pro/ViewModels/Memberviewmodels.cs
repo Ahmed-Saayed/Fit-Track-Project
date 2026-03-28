@@ -119,7 +119,10 @@ namespace FitTrack_Pro.ViewModels
 		public decimal PaidAmount { get; set; }
 		public bool IsActive { get; set; }
 		public int RemainingDays => Math.Max(0, (EndDate - DateTime.Today).Days);
+		public decimal PlanPrice { get; set; } //  plan standred price
+		public decimal RemainingAmount => PlanPrice - PaidAmount; 
 	}
+	
 
 	// ════════════════════════════════════════════════════════════════
 	//  Dashboard stats card
@@ -136,26 +139,33 @@ namespace FitTrack_Pro.ViewModels
 	// ════════════════════════════════════════════════════════════════
 	//  ASSIGN PLAN
 	// ════════════════════════════════════════════════════════════════
-	public class AssignPlanViewModel
-	{
-		public int MemberId { get; set; }
-		public string MemberName { get; set; } = string.Empty;
 
-		// Info about currently active plan (if any)
-		public string? CurrentPlanName { get; set; }
-		public DateTime? CurrentPlanEndDate { get; set; }
+		public class AssignPlanViewModel
+		{
+			public int MemberId { get; set; }
+			public string MemberName { get; set; } = string.Empty;
 
-		[Required(ErrorMessage = "Please select a plan")]
-		[Display(Name = "Subscription Plan")]
-		public int SelectedPlanId { get; set; }
+			public string? CurrentPlanName { get; set; }
+			public DateTime? CurrentPlanEndDate { get; set; }
 
-		[Required(ErrorMessage = "Start Date is required")]
-		[DataType(DataType.Date)]
-		[Display(Name = "Start Date")]
-		public DateTime StartDate { get; set; } = DateTime.Today;
+			[Required(ErrorMessage = "Please select a plan")]
+			[Display(Name = "Subscription Plan")]
+			public int SelectedPlanId { get; set; }
 
-		public IEnumerable<PlanResponseViewModel> AvailablePlans { get; set; } = [];
-	}
+			[Required(ErrorMessage = "Start Date is required")]
+			[DataType(DataType.Date)]
+			[Display(Name = "Start Date")]
+			public DateTime StartDate { get; set; } = DateTime.Today;
+
+			public IEnumerable<PlanResponseViewModel> AvailablePlans { get; set; } = [];
+
+			[Display(Name = "Initial Payment (EGP)")]
+			[Range(0, double.MaxValue, ErrorMessage = "Payment amount cannot be negative.")]
+			public decimal InitialPayment { get; set; }
+
+			[Display(Name = "Payment Method")]
+			public string PaymentMethod { get; set; } = "Cash";
+		}
 
 	// ════════════════════════════════════════════════════════════════
 	//  MEMBER DASHBOARD

@@ -71,7 +71,7 @@
                                 <option value="">-- Click a plan card or select here --</option>
                                 @foreach (var plan in Model.AvailablePlans)
                                 {
-                                    <option value="@plan.Id">@plan.Name — @plan.Price.ToString("N0") EGP (@plan.DurationInDays Days)</option>
+                                    <option value="@plan.Id" data-price="@plan.Price">@plan.Name — @plan.Price.ToString("N0") EGP (@plan.DurationInDays Days)</option>
                                 }
                             </select>
                             <span asp-validation-for="SelectedPlanId" class="text-danger small mt-1 d-block"></span>
@@ -82,13 +82,47 @@
                             <input asp-for="StartDate" class="form-control form-control-lg border-2 shadow-sm" type="date" required />
                             <span asp-validation-for="StartDate" class="text-danger small mt-1 d-block"></span>
                         </div>
+                        
+                        <hr class="text-muted opacity-25 my-4" />
+
+                        <div class="bg-light border border-light-subtle rounded-4 p-4 mb-4 shadow-sm">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-success bg-opacity-10 text-success rounded-circle p-2 me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                    <i class="fas fa-wallet fs-5"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold text-dark mb-0">Initial Payment</h6>
+                                    <small class="text-muted">Enter the amount paid today (leave as 0 if paying later)</small>
+                                </div>
+                            </div>
+    
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label asp-for="InitialPayment" class="form-label text-muted fw-bold small text-uppercase" style="letter-spacing: 0.5px;">Amount (EGP)</label>
+                                    <input asp-for="InitialPayment" id="InitialPayment" type="number" step="0.01" class="form-control form-control-lg border-2 bg-white shadow-sm" placeholder="e.g. 500" required />
+                                    <div id="payment-error" class="text-danger small mt-2 d-none fw-bold">
+                                        <i class="fas fa-exclamation-circle me-1"></i> Amount exceeds the plan price!
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label asp-for="PaymentMethod" class="form-label text-muted fw-bold small text-uppercase" style="letter-spacing: 0.5px;">Payment Method</label>
+                                    <select asp-for="PaymentMethod" class="form-select form-select-lg border-2 bg-white shadow-sm" required>
+                                        <option value="Cash">Cash</option>
+                                        <option value="Visa / Credit Card">Visa / Credit Card</option>
+                                        <option value="Vodafone Cash">Vodafone Cash</option>
+                                        <option value="Bank Transfer">Bank Transfer</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
 
                         <div class="d-grid gap-3 pt-2">
-                            <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold shadow">
+                            <button type="submit" id="submitBtn" class="btn btn-primary btn-lg rounded-pill fw-bold shadow">
                                 <i class="fas fa-check-circle me-2"></i> Confirm & Assign Plan
                             </button>
                             <a asp-action="Details" asp-route-id="@Model.MemberId" class="btn btn-link text-muted fw-medium text-decoration-none">Cancel Assignment</a>
                         </div>
+
                     </form>
                 </div>
             </div>
@@ -102,7 +136,7 @@
             {
                 <div class="col-md-4">
                     <div class="card border-0 shadow-sm rounded-4 h-100 plan-card"
-                         onclick="selectPlan('@plan.Id')">
+                         onclick="selectPlan('@plan.Id', @plan.Price)">
                         <div class="card-body p-4">
                             <div class="d-flex justify-content-between align-items-start mb-3">
                                 <h5 class="fw-bold mb-0 text-dark">@plan.Name</h5>
@@ -125,13 +159,52 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    
     <script>
-        function selectPlan(planId) {
-            document.getElementById('SelectedPlanId').value = planId;
-            // Add a subtle visual feedback
+        let currentPlanPrice = 0;
+        const planSelect = document.getElementById('SelectedPlanId');
+        const initialPaymentInput = document.getElementById('InitialPayment');
+        const paymentError = document.getElementById('payment-error');
+        const submitBtn = document.getElementById('submitBtn');
+
+        function selectPlan(planId, price) {
+            planSelect.value = planId;
+            updatePaymentValidation(price);
             window.scrollTo({ top: 100, behavior: 'smooth' });
         }
+
+        planSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            if(selectedOption.value !== "") {
+                const price = parseFloat(selectedOption.getAttribute('data-price'));
+                updatePaymentValidation(price);
+            } else {
+                updatePaymentValidation(0);
+                initialPaymentInput.value = '';
+            }
+        });
+
+        function updatePaymentValidation(price) {
+            currentPlanPrice = price;
+            initialPaymentInput.value = price; 
+            checkPaymentAmount();
+        }
+
+        initialPaymentInput.addEventListener('input', checkPaymentAmount);
+
+        function checkPaymentAmount() {
+            const paymentAmount = parseFloat(initialPaymentInput.value) || 0;
+            
+            if (currentPlanPrice > 0 && paymentAmount > currentPlanPrice) {
+                paymentError.classList.remove('d-none'); 
+                submitBtn.disabled = true; 
+            } else {
+                paymentError.classList.add('d-none'); 
+                submitBtn.disabled = false; 
+            }
+        }
     </script>
+    
     <style>
         body {
             background-color: #f8f9fa;

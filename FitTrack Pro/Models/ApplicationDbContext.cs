@@ -10,6 +10,8 @@ namespace FitTrack_Pro.Models
         public DbSet<MemberSubscription> MembersSubscription { get; set; }
         public DbSet<MemberVisit> MemberVisits { get; set; }
         public DbSet<ClassAttendance> classAttendances { get; set; }
+		public DbSet<SubscriptionPayment> SubscriptionPayments { get; set; }
+
         public ApplicationDbContext()
         {
 

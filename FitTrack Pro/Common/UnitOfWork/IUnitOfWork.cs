@@ -12,7 +12,7 @@ namespace Common
 		IGenericRepository<MemberSubscription> MemberSubscriptions { get; }
 		IGenericRepository<SubscriptionPlan> SubscriptionPlans { get; }
 		IGenericRepository<MemberVisit> MemberVisits { get; }
-
+		IGenericRepository<SubscriptionPayment> SubscriptionPayments { get; }
 
 		Task<int> CompleteAsync();
 	}

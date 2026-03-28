@@ -26,15 +26,11 @@ namespace FitTrack_Pro.Services
 			{
 				members = await memberRepo.SearchAsync(search);
 				total = members.Count();
-				// Apply paging manually on search results
-				members = members
-					.Skip((page - 1) * pageSize)
-					.Take(pageSize);
+				members = members.Skip((page - 1) * pageSize).Take(pageSize);
 			}
 			else
 			{
 				total = await memberRepo.CountAsync(m => !m.IsDeleted);
-				// We need to include Subscriptions and SubscriptionPlan for the Index view
 				members = await memberRepo.GetAllAsync()
 					.Where(m => !m.IsDeleted)
 					.Include(m => m.Subscriptions)
@@ -64,10 +60,10 @@ namespace FitTrack_Pro.Services
 			var member = await memberRepo.GetWithActiveSubscriptionAsync(id);
 			if (member is null) return null;
 
-			// also load full subscription history
-			var allSubs = await uow.MemberSubscriptions
-				.GetAllAsync()
-				.Where(s => s.MemberId == id)
+			// ✅ تم إصلاح الـ Include لضمان قراءة سعر الباقة
+			var allSubs = await uow.MemberSubscriptions.GetAllAsync()
+				.Include(s => s.SubscriptionPlan)
+				.Where(s => s.MemberId == id && !s.IsDeleted)
 				.OrderByDescending(s => s.StartDate)
 				.ToListAsync();
 
@@ -81,7 +77,7 @@ namespace FitTrack_Pro.Services
 				Barcode = member.Barcode,
 				MedicalNotes = member.MedicalNotes,
 				CreatedAt = member.CreatedAt,
-				ActiveSubscription = member.Subscriptions
+				ActiveSubscription = allSubs
 					.Where(s => s.IsActive && s.EndDate >= DateTime.Today)
 					.Select(MapSubscription)
 					.FirstOrDefault(),
@@ -123,10 +119,9 @@ namespace FitTrack_Pro.Services
 			if (await memberRepo.BarcodeExistsAsync(model.Barcode))
 				return (false, "Barcode is already in use by another member.", 0);
 
-			// 1. Create Identity User
 			var user = new ApplicationUser
 			{
-				UserName = model.UserName ?? model.Barcode, // Fallback to barcode if email missing
+				UserName = model.UserName ?? model.Barcode,
 				Email = model.UserName,
 				FullName = model.FullName,
 				PhoneNumber = model.PhoneNumber
@@ -139,14 +134,11 @@ namespace FitTrack_Pro.Services
 				return (false, firstErr, 0);
 			}
 
-			// 2. Assign "Member" Role
 			if (!await roleManager.RoleExistsAsync("Member"))
-			{
 				await roleManager.CreateAsync(new IdentityRole("Member"));
-			}
+
 			await userManager.AddToRoleAsync(user, "Member");
 
-			// 3. Create Member Record
 			var member = new Member
 			{
 				FullName = model.FullName.Trim(),
@@ -208,39 +200,37 @@ namespace FitTrack_Pro.Services
 		}
 
 		// ────────────────────────────────────────────────────────────
-		//  DASHBOARD STATS
+		//  DASHBOARD STATS (✅ Optimized Version)
 		// ────────────────────────────────────────────────────────────
 		public async Task<MemberDashboardStatsViewModel> GetDashboardStatsAsync()
 		{
-			var allMembers = await memberRepo.GetAllAsync()
-				.Where(m => !m.IsDeleted)
-				.ToListAsync();
+			var today = DateTime.Today;
+			var thisMonthStart = new DateTime(today.Year, today.Month, 1);
 
-			var allSubs = await uow.MemberSubscriptions.GetAllAsync().ToListAsync();
+			var totalMembers = await memberRepo.GetAllAsync().CountAsync(m => !m.IsDeleted);
 
-			var activeMemberIds = allSubs
-				.Where(s => s.IsActive && s.EndDate >= DateTime.Today)
+			var activeMembers = await uow.MemberSubscriptions.GetAllAsync()
+				.Where(s => s.IsActive && s.EndDate >= today && !s.IsDeleted)
 				.Select(s => s.MemberId)
 				.Distinct()
-				.ToHashSet();
+				.CountAsync();
 
-			var expiringIds = allSubs
-				.Where(s => s.IsActive &&
-							s.EndDate >= DateTime.Today &&
-							s.EndDate <= DateTime.Today.AddDays(7))
+			var expiringIn7Days = await uow.MemberSubscriptions.GetAllAsync()
+				.Where(s => s.IsActive && s.EndDate >= today && s.EndDate <= today.AddDays(7) && !s.IsDeleted)
 				.Select(s => s.MemberId)
 				.Distinct()
-				.ToHashSet();
+				.CountAsync();
 
-			var thisMonthStart = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+			var newThisMonth = await memberRepo.GetAllAsync()
+				.CountAsync(m => !m.IsDeleted && m.CreatedAt >= thisMonthStart);
 
 			return new MemberDashboardStatsViewModel
 			{
-				TotalMembers = allMembers.Count,
-				ActiveMembers = activeMemberIds.Count,
-				ExpiredMembers = allMembers.Count(m => !activeMemberIds.Contains(m.Id)),
-				ExpiringIn7Days = expiringIds.Count,
-				NewThisMonth = allMembers.Count(m => m.CreatedAt >= thisMonthStart)
+				TotalMembers = totalMembers,
+				ActiveMembers = activeMembers,
+				ExpiredMembers = totalMembers - activeMembers,
+				ExpiringIn7Days = expiringIn7Days,
+				NewThisMonth = newThisMonth
 			};
 		}
 
@@ -257,6 +247,7 @@ namespace FitTrack_Pro.Services
 				.FirstOrDefaultAsync(s => s.MemberId == memberId && s.IsActive && s.EndDate >= DateTime.Today);
 
 			var plans = await uow.SubscriptionPlans.GetAllAsync()
+				.Where(p => !p.IsDeleted)
 				.Select(p => new PlanResponseViewModel
 				{
 					Id = p.Id,
@@ -282,29 +273,45 @@ namespace FitTrack_Pro.Services
 			var plan = await uow.SubscriptionPlans.GetByIdAsync(model.SelectedPlanId);
 			if (plan is null) return (false, "Subscription plan not found.");
 
-			// Optionally deactivate existing active plans
+			// إيقاف الباقات القديمة النشطة
 			var currentActive = await uow.MemberSubscriptions.GetAllAsync()
-				.Where(s => s.MemberId == model.MemberId && s.IsActive)
+				.Where(s => s.MemberId == model.MemberId && s.IsActive && !s.IsDeleted)
 				.ToListAsync();
 
 			foreach (var sub in currentActive)
 			{
 				sub.IsActive = false;
+				uow.MemberSubscriptions.Update(sub);
 			}
 
+			// ✅ إنشاء الاشتراك وتعيين المدفوع للدفعة الأولى (وليس السعر الكامل)
 			var newSub = new MemberSubscription
 			{
 				MemberId = model.MemberId,
 				SubscriptionPlanId = plan.Id,
 				StartDate = model.StartDate,
 				EndDate = model.StartDate.AddDays(plan.DurationInDays),
-				PaidAmount = plan.Price,
+				PaidAmount = model.InitialPayment,
 				IsActive = true
 			};
 
 			await uow.MemberSubscriptions.AddAsync(newSub);
-			await uow.CompleteAsync();
 
+			// ✅ تسجيل الدفعة الأولى في جدول الدفعات
+			if (model.InitialPayment > 0)
+			{
+				var payment = new SubscriptionPayment
+				{
+					MemberSubscription = newSub,
+					Amount = model.InitialPayment,
+					PaymentMethod = model.PaymentMethod,
+					PaymentDate = DateTime.Now,
+					Notes = "Initial payment upon plan assignment"
+				};
+				await uow.SubscriptionPayments.AddAsync(payment);
+			}
+
+			await uow.CompleteAsync();
 			return (true, null);
 		}
 
@@ -322,7 +329,7 @@ namespace FitTrack_Pro.Services
 			var member = await memberRepo.GetAllAsync()
 				.Include(m => m.Subscriptions).ThenInclude(s => s.SubscriptionPlan)
 				.Include(m => m.Attendances).ThenInclude(a => a.GymClass).ThenInclude(c => c.Trainer)
-				.FirstOrDefaultAsync(m => m.UserId == userId);
+				.FirstOrDefaultAsync(m => m.UserId == userId && !m.IsDeleted);
 
 			if (member is null) return null;
 
@@ -349,6 +356,35 @@ namespace FitTrack_Pro.Services
 						DurationInMinutes = a.GymClass?.DurationInMinutes ?? 0
 					})
 			};
+		}
+
+		// ────────────────────────────────────────────────────────────
+		//  INSTALLMENT PAYMENT
+		// ────────────────────────────────────────────────────────────
+		public async Task<(bool Success, string? Error, int MemberId)> AddInstallmentPaymentAsync(int subscriptionId, decimal amount, string paymentMethod)
+		{
+			var subscription = await uow.MemberSubscriptions.GetByIdAsync(subscriptionId);
+
+			if (subscription == null || subscription.IsDeleted)
+				return (false, "Subscription not found.", 0);
+
+			var payment = new SubscriptionPayment
+			{
+				MemberSubscriptionId = subscriptionId,
+				Amount = amount,
+				PaymentMethod = paymentMethod,
+				PaymentDate = DateTime.Now,
+				Notes = "Installment Payment"
+			};
+
+			await uow.SubscriptionPayments.AddAsync(payment);
+
+			subscription.PaidAmount += amount;
+			uow.MemberSubscriptions.Update(subscription);
+
+			await uow.CompleteAsync();
+
+			return (true, null, subscription.MemberId);
 		}
 
 		// ────────────────────────────────────────────────────────────
@@ -384,6 +420,7 @@ namespace FitTrack_Pro.Services
 		{
 			Id = s.Id,
 			PlanName = s.SubscriptionPlan?.Name ?? "—",
+			PlanPrice = s.SubscriptionPlan?.Price ?? 0,
 			StartDate = s.StartDate,
 			EndDate = s.EndDate,
 			PaidAmount = s.PaidAmount,

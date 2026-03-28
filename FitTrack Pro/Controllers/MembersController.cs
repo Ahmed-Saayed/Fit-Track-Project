@@ -1,4 +1,5 @@
 ﻿using FitTrack_Pro.Interfaces;
+using FitTrack_Pro.Models;
 using FitTrack_Pro.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -177,6 +178,29 @@ namespace FitTrack_Pro.Controllers
 			if (vm is null) return NotFound("Member record not found.");
 
 			return View(vm);
+		}
+
+		// payment 
+		[HttpPost, ValidateAntiForgeryToken]
+		[Authorize(Roles = "Admin")]
+		public async Task<IActionResult> AddInstallmentPayment(int subscriptionId, decimal amount, string paymentMethod)
+		{
+			if (amount <= 0)
+			{
+				TempData["Error"] = "Amount must be greater than zero.";
+				return RedirectToAction(nameof(Index));
+			}
+
+			var (success, error, memberId) = await memberService.AddInstallmentPaymentAsync(subscriptionId, amount, paymentMethod);
+
+			if (!success)
+			{
+				TempData["Error"] = error;
+				return RedirectToAction(nameof(Index));
+			}
+
+			TempData["Success"] = $"Payment of {amount:C} added successfully.";
+			return	RedirectToAction(nameof(Details), new { id = memberId });
 		}
 	}
 }

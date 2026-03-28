@@ -24,6 +24,7 @@ namespace FitTrack_Pro.Interfaces
 		Task<AssignPlanViewModel?> GetAssignPlanFormAsync(int memberId);
 		Task<(bool Success, string? Error)> AssignPlanAsync(AssignPlanViewModel model);
 		Task<(bool Success, string? Error)> DeleteSubscriptionAsync(int subscriptionId);
+		Task<(bool Success, string? Error, int MemberId)> AddInstallmentPaymentAsync(int subscriptionId, decimal amount, string paymentMethod);
 		Task<MemberDashboardViewModel?> GetMemberDashboardAsync(string userId);
 	}
 }

@@ -452,6 +452,25 @@
         color: #6b7280;
         border: 0.5px solid #e5e7eb;
     }
+
+    /* Custom Input for Modal */
+    .custom-input {
+        background: #f9fafb;
+        border: 0.5px solid #d1d5db;
+        border-radius: 8px;
+        padding: 9px 12px;
+        font-family: 'DM Sans',sans-serif;
+        font-size: 14px;
+        color: #111827;
+        transition: all 0.2s;
+        width: 100%;
+        outline: none;
+    }
+
+        .custom-input:focus {
+            border-color: #1a56db;
+            box-shadow: 0 0 0 3px rgba(26,86,219,.1);
+        }
 </style>
 
 <div class="d-wrap">
@@ -469,7 +488,7 @@
         </div>
         <div class="d-actions">
             <a asp-action="Index" class="d-btn d-btn-ghost">
-                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                <svg viewBox="0 0 16 16" fill="none" stroke-width="1.5">
                     <path d="M10 3L5 8l5 5" />
                 </svg>
                 Back
@@ -479,7 +498,7 @@
                 Assign plan
             </a>
             <a asp-action="Edit" asp-route-id="@Model.Id" class="d-btn d-btn-primary">
-                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                <svg viewBox="0 0 16 16" fill="none" stroke-width="1.5">
                     <path d="M10 2l4 4-7 7H3v-4l7-7z" />
                 </svg>
                 Edit member
@@ -489,7 +508,6 @@
 
     <div class="d-layout">
 
-    
         <div class="d-profile">
             <div class="d-avatar">@initials</div>
             <p class="d-profile-name">@Model.FullName</p>
@@ -565,10 +583,8 @@
             }
         </div>
 
-       
         <div class="d-col">
 
-        
             <div class="d-card">
                 <div class="d-card-header">
                     <svg viewBox="0 0 16 16" fill="none" stroke-width="1.5">
@@ -581,7 +597,7 @@
                     @if (sub is not null)
                     {
                         var totalDays = Math.Max(1, (sub.EndDate - sub.StartDate).Days);
-                        var remaining = sub.RemainingDays;
+                        var remaining = Math.Max(0, (sub.EndDate - DateTime.Today).Days);
                         var pct = Math.Max(0, Math.Min(100, (int)(remaining * 100.0 / totalDays)));
                         var fillCls = pct > 30 ? "fill-ok" : pct > 10 ? "fill-warn" : "fill-crit";
 
@@ -592,7 +608,7 @@
                             </div>
                             <div class="d-sub-tile">
                                 <p class="d-sub-tile-label">Amount paid</p>
-                                <p class="d-sub-tile-val">@sub.PaidAmount.ToString("N0") EGP</p>
+                                <p class="d-sub-tile-val" style="color: #1a56db;">@sub.PaidAmount.ToString("N0") / @sub.PlanPrice.ToString("N0") EGP</p>
                             </div>
                             <div class="d-sub-tile">
                                 <p class="d-sub-tile-label">Start date</p>
@@ -620,9 +636,22 @@
                             </div>
                         </div>
 
-                        <div class="mt-4">
-                            <a asp-action="AssignPlan" asp-route-id="@Model.Id" class="d-btn d-btn-ghost w-100 justify-content-center" style="border-color:#1a56db; color:#1a56db">
-                                <i class="fas fa-arrow-up me-2"></i>Upgrade / Renew Plan
+                        <div class="d-flex gap-2 mt-4 align-items-center">
+                            @if (sub.RemainingAmount > 0)
+                            {
+                                <button type="button" class="d-btn d-btn-primary flex-grow-1 justify-content-center" data-bs-toggle="modal" data-bs-target="#addPaymentModal">
+                                    <i class="fas fa-hand-holding-usd me-1"></i> Pay Installment (@sub.RemainingAmount.ToString("N0") EGP left)
+                                </button>
+                            }
+                            else
+                            {
+                                <div class="d-flex align-items-center justify-content-center flex-grow-1 bg-success bg-opacity-10 text-success rounded-3 py-2 px-3 border border-success border-opacity-25" style="font-size: 13px; font-weight: 600;">
+                                    <i class="fas fa-check-circle me-2"></i> Fully Paid
+                                </div>
+                            }
+
+                            <a asp-action="AssignPlan" asp-route-id="@Model.Id" class="d-btn d-btn-ghost flex-grow-1 justify-content-center" style="border-color:#d1d5db;">
+                                <i class="fas fa-arrow-up me-1"></i> Upgrade / Renew
                             </a>
                         </div>
                     }
@@ -639,7 +668,6 @@
                 </div>
             </div>
 
-          
             <div class="d-card">
                 <div class="d-card-header">
                     <svg viewBox="0 0 16 16" fill="none" stroke-width="1.5">
@@ -711,6 +739,49 @@
         </div>
     </div>
 </div>
+
+@if (sub is not null)
+{
+    <div class="modal fade" id="addPaymentModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border:0.5px solid #e5e7eb;border-radius:12px;font-family:'DM Sans',sans-serif">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title" style="font-family:'Syne',sans-serif;font-size:18px;font-weight:600;color:#111827">Add Installment Payment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                
+                <form asp-action="AddInstallmentPayment" asp-controller="Members" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="subscriptionId" value="@sub.Id" />
+                    
+                    <div class="modal-body pt-3 pb-4" style="color:#374151">
+                        <div class="mb-4">
+                            <label class="form-label" style="font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Amount (EGP) <span class="text-danger">*</span></label>
+                            <input type="number" step="0.01" name="amount" max="@sub.RemainingAmount" class="custom-input" required placeholder="Max: @sub.RemainingAmount" />
+                            <small class="text-muted d-block mt-1">Remaining Balance: @sub.RemainingAmount.ToString("N0") EGP</small>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label" style="font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Payment Method</label>
+                            <select name="paymentMethod" class="custom-input" required>
+                                <option value="Cash">Cash</option>
+                                <option value="Visa / Credit Card">Visa / Credit Card</option>
+                                <option value="Vodafone Cash">Vodafone Cash</option>
+                                <option value="Bank Transfer">Bank Transfer</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-footer border-0 pt-0 pb-3">
+                        <button type="button" class="d-btn d-btn-ghost" data-bs-dismiss="modal" style="font-size:14px">Cancel</button>
+                        <button type="submit" class="d-btn d-btn-primary" style="font-size:14px">
+                            <i class="fas fa-check me-1"></i> Confirm Payment
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
 
 <div class="modal fade" id="deleteSubModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">

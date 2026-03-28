@@ -12,6 +12,7 @@ namespace Common
 		public IGenericRepository<MemberSubscription> MemberSubscriptions { get; } = new GenericRepository<MemberSubscription>(_context);
 		public IGenericRepository<SubscriptionPlan> SubscriptionPlans { get; } = new GenericRepository<SubscriptionPlan>(_context);
 		public IGenericRepository<MemberVisit> MemberVisits { get; } = new GenericRepository<MemberVisit>(_context);
+		public IGenericRepository<SubscriptionPayment> SubscriptionPayments { get; private set; }= new GenericRepository<SubscriptionPayment>(_context);
 		public async Task<int> CompleteAsync()
 		{
 			return await _context.SaveChangesAsync();
