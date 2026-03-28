@@ -131,7 +131,7 @@
         <div class="main-wrapper">
 
             <header class="top-navbar mb-3 mt-1">
-                <div class="header-left">
+                @* <div class="header-left">
                     <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle Navigation">
                         <i class="fa-solid fa-bars"></i>
                     </button>
@@ -140,7 +140,7 @@
                         <i class="fa-solid fa-search"></i>
                         <input type="text" class="search-bar" placeholder="Search members, classes..." aria-label="Search">
                     </div>
-                </div>
+                </div> *@
 
                 <div class="header-actions">
                     <div class="gym-status">
@@ -148,10 +148,10 @@
                         <span class="status-dot"></span>
                     </div>
 
-                    <button class="notification-btn" aria-label="Notifications">
+                    @* <button class="notification-btn" aria-label="Notifications">
                         <i class="fa-regular fa-bell pt-1"></i>
                         <span class="notification-badge"></span>
-                    </button>
+                    </button> *@
 
                     <div class="ms-3 d-flex align-items-center">
                         @if (User?.Identity?.IsAuthenticated ?? false)

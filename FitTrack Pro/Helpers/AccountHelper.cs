@@ -1,4 +1,4 @@
-﻿using FitTrack_Pro.Models;
+using FitTrack_Pro.Models;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 
@@ -14,22 +14,26 @@ namespace FitTrack_Pro.Helpers
             _signInManager = signInManager;
         }
 
-        public async Task<string?> RegisterUser(RegisterModel registerViewModel)
+        public async Task<string?> RegisterUser(RegisterModel registerViewModel, bool signIn = true)
         {
             var user = new ApplicationUser
             {
                 UserName = registerViewModel.UserName,
-                PasswordHash = registerViewModel.Password,
+                Email = registerViewModel.UserName, // Assuming UserName is the Email
                 FullName = registerViewModel.FullName
-
             };
-            IdentityResult result = _userManager.CreateAsync(user, registerViewModel.Password).Result;
+
+            IdentityResult result = await _userManager.CreateAsync(user, registerViewModel.Password);
             if (result.Succeeded)
             {
                 await _userManager.AddToRoleAsync(user, registerViewModel.Role);
-                await _signInManager.SignInAsync(user, false);
+                if (signIn)
+                {
+                    await _signInManager.SignInAsync(user, false);
+                }
                 return user.Id;
-            } else return null;
+            }
+            return null;
         }
     }
 }

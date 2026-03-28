@@ -52,9 +52,9 @@ namespace FitTrack_Pro.Controllers
             if (!ModelState.IsValid) return View(model);
 
             var (success, error, newId) = await trainerService.CreateTrainerAsync(model);
-            if (!success)
+            if (!success || newId == 0)
             {
-                ModelState.AddModelError(string.Empty, error!);
+                ModelState.AddModelError(string.Empty, error ?? "Failed to create trainer record.");
                 return View(model);
             }
 
