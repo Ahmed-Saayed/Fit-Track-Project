@@ -41,8 +41,8 @@ namespace FitTrack_Pro.Controllers
 							return RedirectToAction("Index", "Home");
 						else if (await _userManager.IsInRoleAsync(user, "Member"))
 							return RedirectToAction("Dashboard", "Members");
-						else
-							return RedirectToAction("Index", "Home");
+						//else
+						//	return RedirectToAction("Index", "Home");
 					}
 				}
 				ModelState.AddModelError("", "Invalid Username or Password");

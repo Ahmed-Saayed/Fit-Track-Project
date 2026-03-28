@@ -6,7 +6,7 @@ using System.Security.Claims;
 
 namespace FitTrack_Pro.Controllers
 {
-	[Authorize(Roles = "Admin")]
+	//[Authorize(Roles = "Admin")]
 	public class MembersController(IMemberService memberService) : Controller
 	{
 		// ════════════════════════════════════════════════════════
@@ -24,6 +24,7 @@ namespace FitTrack_Pro.Controllers
 		//  GET  /Members/Details/5
 		// ════════════════════════════════════════════════════════
 		[HttpGet]
+		[Authorize(Roles ="Admin")]
 		public async Task<IActionResult> Details(int id)
 		{
 			var vm = await memberService.GetMemberDetailsAsync(id);
@@ -45,6 +46,7 @@ namespace FitTrack_Pro.Controllers
 		//  POST /Members/Create
 		// ════════════════════════════════════════════════════════
 		[HttpPost, ValidateAntiForgeryToken]
+		[Authorize(Roles ="Admin")]
 		public async Task<IActionResult> Create(MemberFormViewModel model)
 		{
 			if (!ModelState.IsValid) return View(model);
@@ -75,6 +77,7 @@ namespace FitTrack_Pro.Controllers
 		//  POST /Members/Edit
 		// ════════════════════════════════════════════════════════
 		[HttpPost, ValidateAntiForgeryToken]
+		[Authorize(Roles = "Admin")]
 		public async Task<IActionResult> Edit(MemberFormViewModel model)
 		{
 			if (!ModelState.IsValid) return View(model);
@@ -93,6 +96,7 @@ namespace FitTrack_Pro.Controllers
 		//  POST /Members/Delete  (AJAX-friendly)
 		// ════════════════════════════════════════════════════════
 		[HttpPost, ValidateAntiForgeryToken]
+		[Authorize(Roles = "Admin")]
 		public async Task<IActionResult> Delete(int id)
 		{
 			var (success, error) = await memberService.DeleteMemberAsync(id);

@@ -1,6 +1,4 @@
-@* _Layout.cshtml for FitTrack Pro
-    Responsive layout with dynamic active link highlighting.
-*@
+@* _Layout.cshtml for FitTrack Pro *@
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,12 +10,15 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+          crossorigin="anonymous">
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
-          integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA=="
-          crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer" />
 
     <link href="~/css/site.css" rel="stylesheet" />
 </head>
@@ -29,7 +30,7 @@
 
         <aside class="sidebar" id="sidebar">
             <div class="brand-section">
-                <a href="~/" class="brand-title">
+                <a asp-controller="Home" asp-action="Index" class="brand-title">
                     <i class="fa-solid fa-dumbbell text-primary"></i> FitTrack Pro
                 </a>
                 <div class="brand-subtitle">GYM MANAGEMENT</div>
@@ -37,57 +38,91 @@
 
             <nav class="nav-links">
                 @{
-                    // Logic to determine which link is active based on the URL
                     var currentController = ViewContext.RouteData.Values["Controller"]?.ToString();
+                    var isAuthenticated = User?.Identity?.IsAuthenticated ?? false;
+                    var isAdmin = isAuthenticated && User.IsInRole("Admin");
+                    var isTrainer = isAuthenticated && User.IsInRole("Trainer");
+                    var isMember = isAuthenticated && User.IsInRole("Member");
+
+                    var showFullMenu = isAdmin || isTrainer;
+                    var memberOnly = isMember && !showFullMenu;
                 }
 
-                <div class="nav-item">
-                    <a href="~/" class="sidebar-link @(currentController == "Home" || string.IsNullOrEmpty(currentController) ? "active" : "")">
-                        <i class="fa-solid fa-table-cells-large"></i> Dashboard
-                    </a>
-                </div>
-                <div class="nav-item">
-                    <a href="~/Members" class="sidebar-link @(currentController == "Members" ? "active" : "")">
-                        <i class="fa-solid fa-users"></i> Members
-                    </a>
-                </div>
-                <div class="nav-item">
-                    <a asp-controller="GymClasses" asp-action="Index" class="sidebar-link @(currentController == "GymClasses" ? "active" : "")">
-                        <i class="fa-solid fa-dumbbell"></i> Classes
-                    </a>
-                </div>
-                @* <div class="nav-item">
-                    <a href="~/Schedule" class="sidebar-link @(currentController == "Schedule" ? "active" : "")">
-                        <i class="fa-solid fa-calendar-days"></i> Schedule
-                    </a>
-                </div> *@
-                <div class="nav-item">
-                    <a href="~/Trainers" class="sidebar-link @(currentController == "Trainers" ? "active" : "")">
-                        <i class="fa-solid fa-id-badge"></i> Trainers
-                    </a>
-                </div>
-                <div class="nav-item">
-                    <a asp-controller="Plans" asp-action ="Index" class="sidebar-link">
+                @if (memberOnly)
+                {
+                    <div class="nav-item">
+                        <a asp-controller="Members" asp-action="Dashboard"
+                           class="sidebar-link @(currentController == "Members" ? "active" : "")">
+                            <i class="fa-solid fa-table-cells-large"></i> Dashboard
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <div class="nav-item">
+                        <a asp-controller="Home" asp-action="Index"
+                           class="sidebar-link @(currentController == "Home" ? "active" : "")">
+                            <i class="fa-solid fa-table-cells-large"></i> Dashboard
+                        </a>
+                    </div>
 
-                        <i class="fa-solid fa-money-bill-wave"></i> Plans
-                    </a>
-                </div>
-                @* <div class="nav-item">
-                    <a href="~/Reports" class="sidebar-link @(currentController == "Reports" ? "active" : "")">
-                        <i class="fa-solid fa-chart-bar"></i> Reports
-                    </a>
-                </div> *@
+                    <div class="nav-item">
+                        <a asp-controller="Members" asp-action="Index"
+                           class="sidebar-link @(currentController == "Members" ? "active" : "")">
+                            <i class="fa-solid fa-users"></i> Members
+                        </a>
+                    </div>
+
+                    <div class="nav-item">
+                        <a asp-controller="GymClasses" asp-action="Index"
+                           class="sidebar-link @(currentController == "GymClasses" ? "active" : "")">
+                            <i class="fa-solid fa-dumbbell"></i> Classes
+                        </a>
+                    </div>
+
+                    <div class="nav-item">
+                        <a asp-controller="Trainers" asp-action="Index"
+                           class="sidebar-link @(currentController == "Trainers" ? "active" : "")">
+                            <i class="fa-solid fa-id-badge"></i> Trainers
+                        </a>
+                    </div>
+
+                    <div class="nav-item">
+                        <a asp-controller="Plans" asp-action="Index"
+                           class="sidebar-link @(currentController == "Plans" ? "active" : "")">
+                            <i class="fa-solid fa-money-bill-wave"></i> Plans
+                        </a>
+                    </div>
+                }
             </nav>
 
             <div class="profile-section">
-                <img src="https://ui-avatars.com/api/?name=Alex+Rivera&background=0D6EFD&color=fff&rounded=true&bold=true" alt="Alex Rivera" class="profile-avatar">
+                @{
+                    var displayName = "Guest";
+                    var displayTitle = "";
+
+                    if (isAuthenticated)
+                    {
+                        displayName = User.FindFirst("FullName")?.Value ?? User.Identity.Name ?? "User";
+
+                        if (isAdmin) displayTitle = "Administrator";
+                        else if (isTrainer) displayTitle = "Trainer";
+                        else if (isMember) displayTitle = "Member";
+                    }
+                }
+
+                <img src="https://ui-avatars.com/api/?name=@(Uri.EscapeDataString(displayName))&background=0D6EFD&color=fff&rounded=true&bold=true"
+                     alt="@displayName"
+                     class="profile-avatar">
 
                 <div class="profile-info">
-                    <h6 class="profile-name">Alex Rivera</h6>
-                    <p class="profile-title">Head Manager</p>
+                    <h6 class="profile-name">@displayName</h6>
+                    <p class="profile-title">@displayTitle</p>
                 </div>
 
-                <a href="~/Settings" class="profile-settings @(currentController == "Settings" ? "active-icon" : "")" title="Settings">
+                <a asp-controller="Settings" asp-action="Index"
+                   class="profile-settings @(currentController == "Settings" ? "active-icon" : "")"
+                   title="Settings">
                     <i class="fa-solid fa-gear"></i>
                 </a>
             </div>
@@ -118,19 +153,21 @@
                         <span class="notification-badge"></span>
                     </button> *@
 
-                    @* User area: show FullName and logout if authenticated, otherwise show Login *@
                     <div class="ms-3 d-flex align-items-center">
                         @if (User?.Identity?.IsAuthenticated ?? false)
                         {
                             var fullNameClaim = User.FindFirst("FullName")?.Value ?? User.Identity.Name;
+
                             <div class="d-flex align-items-center text-end me-3">
                                 <div class="me-2">
                                     <div class="small text-muted">Signed in as</div>
                                     <div class="fw-semibold">@fullNameClaim</div>
                                 </div>
-                                <div>
-                                    <img src="https://ui-avatars.com/api/?name=@(Uri.EscapeDataString(fullNameClaim ?? "User"))&background=0D6EFD&color=fff&rounded=true&bold=true" alt="@fullNameClaim" class="rounded-circle" style="width:38px;height:38px;" />
-                                </div>
+
+                                <img src="https://ui-avatars.com/api/?name=@(Uri.EscapeDataString(fullNameClaim ?? "User"))&background=0D6EFD&color=fff&rounded=true&bold=true"
+                                     alt="@fullNameClaim"
+                                     class="rounded-circle"
+                                     style="width:38px;height:38px;" />
                             </div>
 
                             <form asp-controller="Account" asp-action="Logout" method="post" class="m-0">
@@ -140,7 +177,10 @@
                         }
                         else
                         {
-                            <a asp-controller="Account" asp-action="Login" class="btn btn-outline-primary rounded-pill">Login</a>
+                            <a asp-controller="Account" asp-action="Login"
+                               class="btn btn-outline-primary rounded-pill">
+                                Login
+                            </a>
                         }
                     </div>
                 </div>
@@ -154,7 +194,6 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
             crossorigin="anonymous"></script>
 
     <script>
@@ -165,6 +204,7 @@
 
             function toggleSidebar() {
                 sidebar.classList.toggle('show');
+
                 if (sidebar.classList.contains('show')) {
                     overlay.style.display = 'block';
                     setTimeout(() => overlay.classList.add('show'), 10);
@@ -174,11 +214,12 @@
                 }
             }
 
-            if(toggleBtn) toggleBtn.addEventListener('click', toggleSidebar);
-            if(overlay) overlay.addEventListener('click', toggleSidebar);
+            if (toggleBtn) toggleBtn.addEventListener('click', toggleSidebar);
+            if (overlay) overlay.addEventListener('click', toggleSidebar);
         });
     </script>
 
     @await RenderSectionAsync("Scripts", required: false)
+
 </body>
 </html>
