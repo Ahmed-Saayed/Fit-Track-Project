@@ -10,8 +10,7 @@ namespace FitTrack_Pro.Controllers
 {
 	public class HomeController(IDashboardService _service) : Controller
 	{
-
-		[Authorize]
+       // [Authorize]
 		public async Task<IActionResult> Index()
 		{
 			var viewModel = await _service.GetDashboardDataAsync();

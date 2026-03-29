@@ -1,0 +1,706 @@
+﻿@using System.Collections.Generic
+@using FitTrack_Pro.ViewModels
+@using System.Security.Claims
+@model IEnumerable<MessageViewModel>
+
+@{
+    ViewData["Title"] = "Chat";
+    string currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
+    string partnerId = Context.Request.Query["UserId"].ToString() ?? (string?)ViewContext.RouteData.Values["UserId"] ?? string.Empty;
+    string partnerName = (TempData["FullName"]?.ToString()) ?? (Model?.FirstOrDefault(m => m.SenderId != currentUserId)?.SenderName ?? "User");
+
+    // Find Egypt Timezone
+    TimeZoneInfo egyptTimeZone;
+    try { egyptTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Egypt Standard Time"); }
+    catch { egyptTimeZone = TimeZoneInfo.Local; }
+}
+
+<style>
+    .chat-container {
+        height: calc(100vh - 120px);
+        max-height: 800px;
+        display: flex;
+        flex-direction: column;
+        background-color: #f8f9fa;
+        border-radius: 1rem;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        margin-top: 1rem;
+    }
+
+    .chat-header {
+        background-color: #ffffff;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #e9ecef;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        z-index: 10;
+    }
+
+        .chat-header .avatar {
+            width: 48px;
+            height: 48px;
+            background-color: #0d6efd;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+    .chat-header-info h5 {
+        margin: 0;
+        font-weight: 600;
+        color: #212529;
+    }
+
+    .chat-header-info p {
+        margin: 0;
+        font-size: 0.85rem;
+        color: #6c757d;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .status-indicator {
+        width: 8px;
+        height: 8px;
+        background-color: #198754;
+        border-radius: 50%;
+        display: inline-block;
+    }
+
+    .chat-body {
+        flex: 1;
+        padding: 1.5rem;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        background-color: #f8f9fa;
+        scroll-behavior: smooth;
+    }
+
+    .message {
+        display: flex;
+        flex-direction: column;
+        max-width: 85%;
+        animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @@keyframes fadeOut {
+        from {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        to {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+    }
+
+    .message.sent {
+        align-self: flex-end;
+        align-items: flex-end;
+    }
+
+    .message.received {
+        align-self: flex-start;
+        align-items: flex-start;
+    }
+
+    .message-content {
+        padding: 0.75rem 1.25rem;
+        border-radius: 1.25rem;
+        position: relative;
+        word-wrap: break-word;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.02);
+        line-height: 1.5;
+    }
+
+    .message.sent .message-content {
+        background-color: #0d6efd;
+        color: white;
+        border-bottom-right-radius: 0.25rem;
+    }
+
+    .message.received .message-content {
+        background-color: #ffffff;
+        color: #212529;
+        border-bottom-left-radius: 0.25rem;
+        border: 1px solid #e9ecef;
+    }
+
+    .message-timestamp {
+        font-size: 0.75rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
+        padding: 0 0.5rem;
+    }
+
+    .message.sent .message-timestamp {
+        text-align: right;
+    }
+
+    .chat-footer {
+        background-color: #ffffff;
+        padding: 1rem 1.5rem;
+        border-top: 1px solid #e9ecef;
+    }
+
+    .chat-input-wrapper {
+        display: flex;
+        align-items: center;
+        background-color: #f8f9fa;
+        border-radius: 2rem;
+        padding: 0.5rem 1rem;
+        border: 1px solid #e9ecef;
+        transition: all 0.2s ease-in-out;
+    }
+
+        .chat-input-wrapper:focus-within {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+            background-color: #ffffff;
+        }
+
+    .chat-input {
+        flex: 1;
+        border: none;
+        background: transparent;
+        padding: 0.5rem;
+        outline: none;
+        resize: none;
+        max-height: 100px;
+        min-height: 24px;
+        font-size: 0.95rem;
+    }
+
+    .btn-send {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #0d6efd;
+        color: white;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        flex-shrink: 0;
+    }
+
+        .btn-send:hover {
+            background-color: #0b5ed7;
+        }
+
+        .btn-send:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+    /* Custom scrollbar */
+    .chat-body::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .chat-body::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .chat-body::-webkit-scrollbar-thumb {
+        background-color: rgba(0,0,0,0.15);
+        border-radius: 10px;
+    }
+
+        .chat-body::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(0,0,0,0.25);
+        }
+
+    /* Clean overrides for the Bootstrap Dropdown button */
+    .message-dropdown .btn-link:focus, .message-dropdown .btn-link:active {
+        box-shadow: none !important;
+        outline: none !important;
+    }
+</style>
+
+<div class="container-fluid py-3">
+    <div class="row justify-content-center">
+        <div class="col-12 col-xl-10">
+            <div class="chat-container">
+
+                <!-- Chat Header -->
+                <div class="chat-header">
+                    <div class="avatar">
+                        @{
+                            var nameParts = partnerName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                            string initials = nameParts.Length > 0 ? nameParts[0].Substring(0, 1).ToUpper() : "U";
+                            if (nameParts.Length > 1) initials += nameParts[1].Substring(0, 1).ToUpper();
+                            @initials
+                        }
+                    </div>
+
+                    <div class="chat-header-info" style="flex: 1;">
+                        <h5>@partnerName</h5>
+                        <p><span class="status-indicator"></span> Live Chat</p>
+                    </div>
+
+                    <!-- The 'X' Close Button -->
+                    <div>
+                        <a href="@Url.Action(User.IsInRole("Admin") ? "getChatsMetaDataForAdmin" : "getChatsMetaDataForUser", "Chat")"
+                           class="btn btn-light rounded-circle text-muted border-0 d-flex align-items-center justify-content-center shadow-sm"
+                           style="width: 40px; height: 40px; transition: background-color 0.2s;"
+                           title="Close Chat">
+                            <i class="fa-solid fa-xmark fs-5"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Chat Body -->
+                <div class="chat-body" id="chatBody">
+                    @if (Model != null && Model.Any())
+                    {
+                        var lastDate = string.Empty;
+
+                        foreach (var message in Model.OrderBy(m => m.SentAt))
+                        {
+                            var utcTime = message.SentAt.ToUniversalTime();
+                            var egyptTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, egyptTimeZone);
+                            var messageDate = egyptTime.ToString("MMM dd, yyyy");
+                            var isMine = message.SenderId == currentUserId;
+                            var messageClass = isMine ? "sent" : "received";
+
+                            if (lastDate != messageDate)
+                            {
+                                <div class="text-center my-3">
+                                    <span class="badge bg-secondary rounded-pill fw-normal text-white px-3 py-2 opacity-75">
+                                        @messageDate
+                                    </span>
+                                </div>
+                                lastDate = messageDate;
+                            }
+
+                            <div class="message @messageClass" id="msg-@message.Id" data-id="@message.Id">
+                                <div class="d-flex align-items-center gap-2 @(isMine ? "flex-row-reverse" : "")">
+                                    <div class="message-content">
+                                        <span class="msg-text-content">@message.Message</span>
+                                    </div>
+
+                                    <!-- Drops Down Edit/Delete ONLY if isMine -->
+                                    @if (isMine)
+                                    {
+                                        <div class="dropdown message-dropdown">
+                                            <button class="btn btn-link text-muted p-2 border-0 shadow-none" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Message Options">
+                                                <i class="fa-solid fa-ellipsis-vertical"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 py-2">
+                                                <li><button class="dropdown-item btn-edit py-2"><i class="fa-solid fa-pen fa-sm me-2 text-primary"></i> Edit</button></li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li><button class="dropdown-item btn-delete text-danger py-2"><i class="fa-solid fa-trash fa-sm me-2"></i> Delete</button></li>
+                                            </ul>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="message-timestamp">
+                                    @egyptTime.ToString("hh:mm tt")
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="d-flex flex-column align-items-center justify-content-center h-100 text-muted" id="emptyState">
+                            <i class="fa-regular fa-comments fa-3x mb-3 text-secondary opacity-50"></i>
+                            <p>No messages yet. Send a message to start the conversation!</p>
+                        </div>
+                    }
+                </div>
+
+                <!-- Chat Footer / Input -->
+                <div class="chat-footer">
+                    <div class="chat-input-wrapper">
+                        <!-- Cancel Edit Button (Appears only during edit mode) -->
+                        <button id="cancelEditBtn" class="btn text-danger p-2" style="display:none;" title="Cancel Editing">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+
+                        <textarea id="messageInput" class="chat-input" placeholder="Type a message..." rows="1"></textarea>
+                        <button id="sendBtn" class="btn-send" title="Send message">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Professional Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 1rem;">
+            <div class="modal-body p-4 text-center">
+                <div class="text-danger mb-3">
+                    <i id="deleteModalIcon" class="fa-solid fa-circle-exclamation fa-4x opacity-75"></i>
+                </div>
+                <h5 class="mb-2" id="deleteModalLabel">Delete Message?</h5>
+                <p id="deleteModalText" class="text-muted mb-4">Are you sure you want to remove this message? This action cannot be undone.</p>
+
+                <div class="d-flex justify-content-center gap-3">
+                    <button type="button" class="btn btn-light px-4 rounded-pill fw-medium" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger px-4 rounded-pill fw-medium" id="confirmDeleteBtn">Yes, Delete It</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const currentUserId = '@currentUserId';
+            const partnerId = '@partnerId';
+            const chatBody = document.getElementById('chatBody');
+            const input = document.getElementById('messageInput');
+            const sendBtn = document.getElementById('sendBtn');
+            const emptyState = document.getElementById('emptyState');
+            const cancelEditBtn = document.getElementById('cancelEditBtn');
+
+            let editingMessageId = null;
+
+            // Delete Modal Logic & State Handlers
+            let messageToDelete = null;
+            const deleteModalElement = document.getElementById('deleteConfirmModal');
+            let deleteModal = null;
+            if (typeof bootstrap !== 'undefined') {
+                deleteModal = new bootstrap.Modal(deleteModalElement);
+            }
+
+            function resetModalText() {
+                document.getElementById('deleteModalIcon').className = "fa-solid fa-circle-exclamation fa-4x opacity-75 text-danger";
+                document.getElementById('deleteModalLabel').textContent = "Delete Message?";
+                document.getElementById('deleteModalText').textContent = "Are you sure you want to remove this message? This action cannot be undone.";
+                document.getElementById('confirmDeleteBtn').style.display = 'block';
+            }
+
+            document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+                if (messageToDelete) {
+                    executeDelete(messageToDelete);
+                    if(deleteModal) deleteModal.hide();
+                    messageToDelete = null;
+                }
+            });
+
+            function scrollToBottom() {
+                chatBody.scrollTop = chatBody.scrollHeight;
+            }
+
+            function formatTime(date) {
+                return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            }
+
+            let lastMessageDateStr = '@((Model?.LastOrDefault()?.SentAt ?? DateTime.MinValue).ToLocalTime().ToString("MMM dd, yyyy"))';
+
+            function addDateBadgeIfNeeded(msgDate) {
+                const newDateStr = msgDate.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
+                if (newDateStr !== lastMessageDateStr && lastMessageDateStr !== 'Jan 01, 0001') {
+                    const badgeDiv = document.createElement('div');
+                    badgeDiv.className = 'text-center my-3';
+                    badgeDiv.innerHTML = `<span class="badge bg-secondary rounded-pill fw-normal text-white px-3 py-2 opacity-75">${newDateStr}</span>`;
+                    chatBody.appendChild(badgeDiv);
+                    lastMessageDateStr = newDateStr;
+                } else if (lastMessageDateStr === 'Jan 01, 0001') {
+                     lastMessageDateStr = newDateStr;
+                }
+            }
+
+            function createMessageElement(msg) {
+                const isMine = msg.SenderId === currentUserId;
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message ' + (isMine ? 'sent' : 'received');
+
+                const msgId = msg.Id || msg.id;
+                if (msgId) {
+                    messageDiv.id = 'msg-' + msgId;
+                    messageDiv.setAttribute('data-id', msgId);
+                }
+
+                const wrapperDiv = document.createElement('div');
+                wrapperDiv.className = 'd-flex align-items-center gap-2 ' + (isMine ? 'flex-row-reverse' : '');
+
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'message-content';
+
+                const textSpan = document.createElement('span');
+                textSpan.className = 'msg-text-content';
+                textSpan.textContent = msg.Message;
+                contentDiv.appendChild(textSpan);
+
+                wrapperDiv.appendChild(contentDiv);
+
+                if (isMine) {
+                    const actionsDiv = document.createElement('div');
+                    actionsDiv.className = 'dropdown message-dropdown';
+                    actionsDiv.innerHTML = `
+                        <button class="btn btn-link text-muted p-2 border-0 shadow-none" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Message Options">
+                            <i class="fa-solid fa-ellipsis-vertical"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 py-2">
+                            <li><button class="dropdown-item btn-edit py-2"><i class="fa-solid fa-pen fa-sm me-2 text-primary"></i> Edit</button></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><button class="dropdown-item btn-delete text-danger py-2"><i class="fa-solid fa-trash fa-sm me-2"></i> Delete</button></li>
+                        </ul>
+                    `;
+                    wrapperDiv.appendChild(actionsDiv);
+                }
+
+                messageDiv.appendChild(wrapperDiv);
+
+                const timestampDiv = document.createElement('div');
+                timestampDiv.className = 'message-timestamp';
+                const msgDate = msg.CreatedAt ? new Date(msg.CreatedAt) : new Date();
+                timestampDiv.textContent = formatTime(msgDate);
+                messageDiv.appendChild(timestampDiv);
+
+                return { element: messageDiv, date: msgDate };
+            }
+
+            // --- DELEGATE CLICKS FOR EDIT / DELETE ---
+            chatBody.addEventListener('click', function(e) {
+                // Ignore clicks if they aren't buttons
+                const editBtn = e.target.closest('.btn-edit');
+                const delBtn = e.target.closest('.btn-delete');
+                if (!editBtn && !delBtn) return;
+
+                const msgDiv = e.target.closest('.message');
+                if (!msgDiv) return;
+
+                if (editBtn) {
+                    const text = msgDiv.querySelector('.msg-text-content').textContent;
+                    editingMessageId = msgDiv.getAttribute('data-id');
+                    input.value = text;
+                    input.focus();
+
+                    sendBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
+                    cancelEditBtn.style.display = 'block';
+                }
+
+                if (delBtn) {
+                    messageToDelete = msgDiv.getAttribute('data-id');
+                    resetModalText();
+
+                    if (deleteModal) {
+                        deleteModal.show();
+                    } else {
+                        if (confirm("Are you sure you want to completely delete this message?")) {
+                            executeDelete(messageToDelete);
+                        }
+                    }
+                }
+            });
+
+            cancelEditBtn.addEventListener('click', cancelEditingMode);
+
+            function cancelEditingMode() {
+                editingMessageId = null;
+                input.value = '';
+                input.style.height = 'auto';
+                sendBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i>';
+                cancelEditBtn.style.display = 'none';
+            }
+
+            // Execute the HTTP Delete call
+            async function executeDelete(messageId) {
+                try {
+                    const res = await fetch(`@Url.Action("DeleteMessage", "Chat")?MessageId=${messageId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                        }
+                    });
+                    if (!res.ok) {
+                        // Flash an error style into the modal if access completely fails
+                        document.getElementById('deleteModalIcon').className = "fa-solid fa-xmark fa-4x opacity-75 text-danger";
+                        document.getElementById('deleteModalLabel').textContent = "Failed to Delete";
+                        document.getElementById('deleteModalText').textContent = "Server blocked the request. Ensure you are the original sender of this message.";
+                        document.getElementById('confirmDeleteBtn').style.display = 'none';
+                        if (deleteModal) deleteModal.show();
+                    }
+                } catch(e) {
+                    console.error(e);
+                }
+            }
+
+            // --- SIGNALR CONNECTIONS ---
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl('/chatHub')
+                .withAutomaticReconnect()
+                .build();
+
+            // 1) Realtime Create
+            connection.on('RecieveMessage', function (message, receiverId) {
+                if (!message) return;
+                const mSender = message.senderId || message.SenderId;
+                const mText = message.message || message.Message;
+                const mCreated = message.sentAt || message.SentAt;
+                const mId = message.id || message.Id;
+
+                const isRelevant =
+                    (receiverId === currentUserId && mSender === partnerId) ||
+                    (mSender === currentUserId && receiverId === partnerId);
+                if (!isRelevant) return;
+
+                if (emptyState) emptyState.remove();
+
+                const standardMessage = {
+                    Id: mId,
+                    SenderId: mSender,
+                    ReciverId: receiverId,
+                    Message: mText,
+                    CreatedAt: mCreated || new Date().toISOString()
+                };
+
+                const buildData = createMessageElement(standardMessage);
+                addDateBadgeIfNeeded(buildData.date);
+                chatBody.appendChild(buildData.element);
+                scrollToBottom();
+            });
+
+            // 2) Realtime Update
+            connection.on('UpdateMessage', function (messageId, newContent) {
+                const msgDiv = document.getElementById('msg-' + messageId);
+                if (msgDiv) {
+                    const textSpan = msgDiv.querySelector('.msg-text-content');
+                    if (textSpan) {
+                         textSpan.textContent = newContent;
+                         // Toss an (edited) label onto the timestamp
+                         let timestampDiv = msgDiv.querySelector('.message-timestamp');
+                         if(!timestampDiv.querySelector('.edited-tag')) {
+                             let editedTag = document.createElement('span');
+                             editedTag.className = 'edited-tag text-opacity-50 ms-1 fst-italic';
+                             editedTag.textContent = '(edited)';
+                             timestampDiv.appendChild(editedTag);
+                         }
+                    }
+                }
+            });
+
+            // 3) Realtime Delete
+            connection.on('DeleteMessage', function (messageId) {
+                const msgDiv = document.getElementById('msg-' + messageId);
+                if (msgDiv) {
+                    msgDiv.style.animation = 'fadeOut 0.3s ease-in-out forwards';
+                    setTimeout(() => msgDiv.remove(), 300);
+                }
+            });
+
+            connection.start().catch(err => console.error('SignalR Err:', err.toString()));
+
+            // Main Execution Check
+            async function sendMessage() {
+                const text = input.value.trim();
+                if (!text) return;
+
+                sendBtn.disabled = true;
+
+                // Flow 1 - Editing Mode
+                if (editingMessageId) {
+                    const payload = {
+                        MesssageContent: text // Exact C# model spelling inside of your backend UpdateMessageViewModel
+                    };
+                    try {
+                        const res = await fetch(`@Url.Action("UpdateMessage", "Chat")?MessageId=${editingMessageId}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                            },
+                            body: JSON.stringify(payload)
+                        });
+
+                        if (res.ok) {
+                            cancelEditingMode();
+                        } else {
+                            console.error('Failed to update message', res.status);
+                        }
+                    } catch (err) {
+                        console.error('Error updating:', err);
+                    } finally {
+                        sendBtn.disabled = false;
+                        input.focus();
+                    }
+                }
+                // Flow 2 - Insert New Message
+                else {
+                    const payload = {
+                        SenderId: currentUserId,
+                        ReciverId: partnerId,
+                        Message: text,
+                        CreatedAt: new Date().toISOString()
+                    };
+
+                    try {
+                        const res = await fetch('@Url.Action("sendNewMessage", "Chat")', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                            },
+                            body: JSON.stringify(payload)
+                        });
+
+                        if (res.ok) {
+                            input.value = '';
+                            input.style.height = 'auto'; // Reset height
+                        }
+                    } catch (err) {
+                        console.error('Error sending:', err);
+                    } finally {
+                        sendBtn.disabled = false;
+                        input.focus();
+                    }
+                }
+            }
+
+            sendBtn.addEventListener('click', sendMessage);
+
+            input.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
+
+            input.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                } else if (e.key === 'Escape' && editingMessageId) {
+                    cancelEditingMode();
+                }
+            });
+
+            setTimeout(scrollToBottom, 50);
+        });
+    </script>
+}

@@ -57,8 +57,15 @@
                             <i class="fa-solid fa-table-cells-large"></i> Dashboard
                         </a>
                     </div>
+
+                    <div class="nav-item">
+                        <a asp-controller="Chat" asp-action="getChatsMetaDataForUser"
+                           class="sidebar-link @(currentController == "Chat" ? "active" : "")">
+                            <i class="fa-solid fa-comments"></i> Chat With Gym Managers
+                        </a>
+                    </div>
                 }
-                // Trainers see the full menu, but members only see their dashboard link
+               
                  else if (trainerOnly) 
                 {
                     <div class="nav-item">
@@ -73,6 +80,12 @@
                         <a asp-controller="GymClasses" asp-action="MyClasses"
                            class="sidebar-link @(currentController == "GymClasses" ? "active" : "")">
                             <i class="fa-solid fa-dumbbell"></i> My Classes
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a asp-controller="Chat" asp-action="getChatsMetaDataForUser"
+                           class="sidebar-link @(currentController == "Chat" ? "active" : "")">
+                            <i class="fa-solid fa-comments"></i> Chat With Gym Managers
                         </a>
                     </div>
                     
@@ -113,6 +126,21 @@
                             <i class="fa-solid fa-money-bill-wave"></i> Plans
                         </a>
                     </div>
+
+                    <div class="nav-item">
+                        <a asp-controller="Chat" asp-action="getChatsMetaDataForAdmin"
+                           class="sidebar-link @(currentController == "Chat" ? "active" : "")">
+                            <i class="fa-solid fa-comments"></i> Chats
+                        </a>
+                    </div>
+
+
+                   @*  <div class="nav-item">
+                        <a asp-controller="Chat" asp-action="getChatsMetaDataForAdmin"
+                           class="sidebar-link @(currentController == "Chat" ? "active" : "")">
+                            <i class="fa-solid fa-money-bill-wave"></i> Chats
+                        </a>
+                    </div> *@
                 }
             </nav>
 
