@@ -6,12 +6,12 @@ namespace FitTrack_Pro.Services
 {
     public interface IChatService
     {
-        Task<ResponseModel<IEnumerable<ChatsViewModel>>> getChatsAsync();
+        Task<ResponseModel<IEnumerable<ChatsViewModel>>> getChatsAsync(string currentUserId);
         Task<ResponseModel<IEnumerable<MessageViewModel>>> getChatMessages(string currentUserId, string otherUserId);
 
         Task<ResponseModel<Message>> AddMessage(MessageRequestViewModel request);
 
-        Task<ResponseModel<IEnumerable<ChatsViewModel>>> getChatsV2Async();
+        Task<ResponseModel<IEnumerable<ChatsViewModel>>> getChatsV2Async(string currentUserId);
 
         Task<ResponseModel<bool>> UpdateMessageMessage(int MessageId, UpdateMessageViewModel request);
 

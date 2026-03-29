@@ -13,7 +13,7 @@ namespace FitTrack_Pro.Services
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly UserManager<ApplicationUser> _userManager = userManager;
         private readonly RoleManager<IdentityRole> _roleManager = roleManager;
-        public async Task<ResponseModel<IEnumerable<ChatsViewModel>>> getChatsAsync()
+        public async Task<ResponseModel<IEnumerable<ChatsViewModel>>> getChatsAsync(string currentUserId)
         {
             ResponseModel<IEnumerable<ChatsViewModel>> response = new ResponseModel<IEnumerable<ChatsViewModel>>();
             try
@@ -37,7 +37,8 @@ namespace FitTrack_Pro.Services
                 {
                     Message message = await _unitOfWork.Messages
                         .GetAllAsync()
-                        .Where(x => !x.IsDeleted && (x.SenderId == chat.UserId || x.ReciverId == chat.UserId))
+                        .Where(x => !x.IsDeleted && ((x.SenderId == chat.UserId || x.ReciverId == chat.UserId) &&
+                        (x.SenderId == currentUserId || x.ReciverId == currentUserId)))
                           .OrderByDescending(m => m.CreatedAt)
                            .FirstOrDefaultAsync();
                     if(message != null)
@@ -94,7 +95,7 @@ namespace FitTrack_Pro.Services
             }
         }
 
-        public async Task<ResponseModel<IEnumerable<ChatsViewModel>>> getChatsV2Async()
+        public async Task<ResponseModel<IEnumerable<ChatsViewModel>>> getChatsV2Async(string currentUserId)
         {
             ResponseModel<IEnumerable<ChatsViewModel>> response = new ResponseModel<IEnumerable<ChatsViewModel>>();
             try
@@ -118,7 +119,8 @@ namespace FitTrack_Pro.Services
                 {
                     Message message = await _unitOfWork.Messages
                         .GetAllAsync()
-                        .Where(x => !x.IsDeleted && (x.SenderId == chat.UserId || x.ReciverId == chat.UserId))
+                        .Where(x => !x.IsDeleted && ((x.SenderId == chat.UserId || x.ReciverId == chat.UserId) && 
+                        (x.SenderId == currentUserId || x.ReciverId == currentUserId)))
                           .OrderByDescending(m => m.CreatedAt)
                            .FirstOrDefaultAsync();
                     if (message != null)

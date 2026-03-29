@@ -22,7 +22,8 @@ namespace FitTrack_Pro.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> getChatsMetaDataForAdmin()
         {
-            ResponseModel<IEnumerable<ChatsViewModel>> result = await _chatService.getChatsAsync();
+            string currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            ResponseModel<IEnumerable<ChatsViewModel>> result = await _chatService.getChatsAsync(currentUserId);
 
             if (result.IsSuccess)
             {
@@ -38,7 +39,8 @@ namespace FitTrack_Pro.Controllers
 
         public async Task<IActionResult> getChatsMetaDataForUser()
         {
-            ResponseModel<IEnumerable<ChatsViewModel>> result = await _chatService.getChatsV2Async();
+            string currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            ResponseModel<IEnumerable<ChatsViewModel>> result = await _chatService.getChatsV2Async(currentUserId);
 
             if (result.IsSuccess)
             {
