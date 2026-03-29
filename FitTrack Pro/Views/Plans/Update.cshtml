@@ -1,92 +1,233 @@
 ﻿@model FitTrack_Pro.ViewModels.PlanResponseViewModel
 
 @{
- ViewData["Title"] = "Update Plan";
+    ViewData["Title"] = "Update Plan";
 }
 
-<div class="container-fluid px-0">
- <div class="d-flex justify-content-between align-items-center mb-4 mt-3">
- <div>
- <h2 class="fw-bold mb-1">Update Subscription Plan</h2>
- <p class="text-muted mb-0">Edit the details of the selected plan.</p>
- </div>
- <div>
- <a asp-controller="Plans" asp-action="Index" class="btn btn-outline-secondary rounded-pill me-2 px-4">Back to Plans</a>
- </div>
- </div>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Syne:wght@500;600;700&display=swap" rel="stylesheet">
 
- <div class="row">
- <div class="col-lg-6">
- <div class="card border-0 shadow-sm rounded-4">
- <div class="card-body p-4">
- <h5 class="fw-bold mb-3">Plan details</h5>
+<style>
+    .form-wrap {
+        font-family: 'DM Sans', sans-serif;
+    }
 
- <!-- Form posts to Plans/Update with id in route -->
- <form asp-action="Update" asp-route-id="@Model.Id" method="post" novalidate>
- @Html.AntiForgeryToken()
- <input type="hidden" name="_method" value="PUT" />
- <input asp-for="Id" type="hidden" />
+    .syne-font {
+        font-family: 'Syne', sans-serif;
+    }
+    
+    /* Modern Inputs */
+    .modern-input {
+        background-color: #f8f9fa;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.75rem;
+        padding: 0.75rem 1rem 0.75rem 2.75rem; /* Space for icon */
+        font-size: 0.95rem;
+        color: #111827;
+        transition: all 0.2s ease;
+    }
 
- <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+        .modern-input:focus {
+            background-color: #ffffff;
+            border-color: #0D6EFD;
+            box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1);
+            outline: none;
+        }
 
- <div class="mb-3">
- <label asp-for="Name" class="form-label fw-semibold"></label>
- <input asp-for="Name" class="form-control form-control-lg rounded-3" placeholder="e.g. Monthly Membership" />
- <span asp-validation-for="Name" class="text-danger small"></span>
- </div>
+    .input-icon {
+        position: absolute;
+        top: 50%;
+        left: 1rem;
+        transform: translateY(-50%);
+        color: #9ca3af;
+        pointer-events: none;
+        z-index: 10;
+    }
 
- <div class="row">
- <div class="col-md-6 mb-3">
- <label asp-for="DurationInDays" class="form-label fw-semibold"></label>
- <input asp-for="DurationInDays" type="number" min="1" class="form-control rounded-3" />
- <span asp-validation-for="DurationInDays" class="text-danger small"></span>
- </div>
+    textarea.modern-input {
+        padding-left: 2.75rem;
+    }
 
- <div class="col-md-6 mb-3">
- <label asp-for="Price" class="form-label fw-semibold"></label>
- <div class="input-group">
- <span class="input-group-text">$</span>
- <input asp-for="Price" type="number" step="0.01" min="0" class="form-control rounded-3" />
- </div>
- <span asp-validation-for="Price" class="text-danger small"></span>
- </div>
- </div>
+    /* Live Preview Card */
+    .preview-card {
+        border: 1px dashed #0D6EFD;
+        background: #f8fbff;
+        transition: all 0.3s ease;
+    }
 
- <div class="mb-3">
- <label asp-for="Description" class="form-label fw-semibold"></label>
- <textarea asp-for="Description" class="form-control rounded-3" rows="4" placeholder="Optional: describe what this plan includes"></textarea>
- <span asp-validation-for="Description" class="text-danger small"></span>
- </div>
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+</style>
 
- <div class="d-flex justify-content-end gap-2 mt-4">
- <a asp-controller="Plans" asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4">Cancel</a>
- <button type="submit" class="btn btn-primary rounded-pill px-4">Save Changes</button>
- </div>
- </form>
- </div>
- </div>
- </div>
+<div class="container-fluid px-0 py-3 form-wrap">
 
- <div class="col-lg-6 d-none d-lg-block">
- <div class="card border-0 rounded-4 h-100 bg-light shadow-sm p-4">
- <div class="card-body">
- <h6 class="fw-bold">Tips when updating a plan</h6>
- <ul class="text-muted small">
- <li>Keep plan names concise and descriptive.</li>
- <li>Check duration matches billing expectations (days).</li>
- <li>Verify the price and decimals are correct.</li>
- <li>Use the description to highlight any changes or benefits.</li>
- </ul>
- </div>
- </div>
- </div>
- </div>
+    <div class="mb-4">
+        <div class="d-flex align-items-center gap-2 small text-muted mb-3">
+            <a asp-controller="Plans" asp-action="Index" class="text-primary text-decoration-none fw-medium">Plans</a>
+            <i class="fas fa-chevron-right" style="font-size: 0.7rem;"></i>
+            <span class="text-dark">Update Plan</span>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-end flex-wrap gap-3">
+            <div>
+                <h2 class="fw-bold mb-1 text-dark syne-font">Update Subscription Plan</h2>
+                <p class="text-muted mb-0">Modify pricing, duration, and benefits for this plan.</p>
+            </div>
+            <div>
+                <a asp-controller="Plans" asp-action="Index" class="btn btn-light rounded-pill px-4 shadow-sm border fw-medium">
+                    <i class="fas fa-arrow-left me-2"></i> Back to Plans
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        
+        <div class="col-lg-7 col-xl-8">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4 px-md-5">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="fw-bold text-dark syne-font mb-0">
+                            <i class="fas fa-pen-square text-primary me-2"></i> Edit Plan Details
+                        </h5>
+                        <div class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-2 fw-medium border border-primary border-opacity-25">
+                            Plan ID: #@Model.Id
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body p-4 p-md-5 pt-4">
+                    <form asp-action="Update" asp-route-id="@Model.Id" method="post" id="planForm" novalidate>
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="_method" value="PUT" />
+                        <input asp-for="Id" type="hidden" />
+
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger small rounded-3" role="alert"></div>
+
+                        <div class="mb-4">
+                            <label asp-for="Name" class="form-label small text-muted fw-bold text-uppercase" style="letter-spacing:0.5px;">Plan Name <span class="text-danger">*</span></label>
+                            <div class="position-relative">
+                                <i class="fas fa-tag input-icon"></i>
+                                <input asp-for="Name" id="inp-name" class="form-control modern-input @(ViewData.ModelState["Name"]?.Errors.Any() == true ? "is-invalid" : "")" placeholder="e.g. VIP Annual Membership" oninput="syncPreview()" />
+                            </div>
+                            <span asp-validation-for="Name" class="text-danger small mt-1 d-block"></span>
+                        </div>
+
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <label asp-for="DurationInDays" class="form-label small text-muted fw-bold text-uppercase" style="letter-spacing:0.5px;">Duration (Days) <span class="text-danger">*</span></label>
+                                <div class="position-relative">
+                                    <i class="far fa-calendar-alt input-icon"></i>
+                                    <input asp-for="DurationInDays" id="inp-duration" type="number" min="1" class="form-control modern-input" placeholder="e.g. 30" oninput="syncPreview()" />
+                                </div>
+                                <span asp-validation-for="DurationInDays" class="text-danger small mt-1 d-block"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="Price" class="form-label small text-muted fw-bold text-uppercase" style="letter-spacing:0.5px;">Price (EGP) <span class="text-danger">*</span></label>
+                                <div class="position-relative">
+                                    <i class="fas fa-money-bill-wave input-icon"></i>
+                                    <input asp-for="Price" id="inp-price" type="number" step="0.01" min="0" class="form-control modern-input" placeholder="0.00" oninput="syncPreview()" />
+                                </div>
+                                <span asp-validation-for="Price" class="text-danger small mt-1 d-block"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Description" class="form-label small text-muted fw-bold text-uppercase" style="letter-spacing:0.5px;">Description & Benefits</label>
+                            <div class="position-relative">
+                                <i class="fas fa-align-left input-icon" style="top: 1.25rem; transform: none;"></i>
+                                <textarea asp-for="Description" id="inp-desc" class="form-control modern-input" rows="4" placeholder="Briefly describe what members get with this plan..." oninput="syncPreview()"></textarea>
+                            </div>
+                            <span asp-validation-for="Description" class="text-danger small mt-1 d-block"></span>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card-footer bg-light border-0 p-4 p-md-5 rounded-bottom-4 d-flex justify-content-end gap-3">
+                    <a asp-controller="Plans" asp-action="Index" class="btn btn-link text-muted text-decoration-none fw-medium">Cancel</a>
+                    <button type="submit" form="planForm" class="btn btn-primary btn-lg rounded-pill px-5 fw-bold shadow-sm">
+                        <i class="fas fa-save me-2"></i> Save Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5 col-xl-4">
+            
+            <h6 class="fw-bold text-dark mb-3"><i class="fas fa-eye text-primary me-2"></i>Live Preview</h6>
+            <div class="card border-0 shadow-sm rounded-4 preview-card mb-4">
+                <div class="card-body p-4 d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h5 class="fw-bold mb-0 text-dark syne-font pe-2" id="prev-name">@Model.Name</h5>
+                        <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-2 fw-bold" style="font-size: 0.75rem;">
+                            <i class="far fa-calendar-alt me-1"></i> <span id="prev-duration">@Model.DurationInDays</span> Days
+                        </span>
+                    </div>
+
+                    <div class="mb-3">
+                        <h3 class="fw-bold text-primary syne-font mb-0">
+                            <span id="prev-price">@Model.Price.ToString("N0")</span> <small class="fs-6 text-muted fw-medium">EGP</small>
+                        </h3>
+                    </div>
+
+                    <p class="text-muted small mb-4 flex-grow-1 line-clamp-2" id="prev-desc" style="min-height: 40px;">
+                        @(string.IsNullOrWhiteSpace(Model.Description) ? "Plan description and benefits will appear here..." : Model.Description)
+                    </p>
+
+                    <button type="button" class="btn btn-outline-primary rounded-pill w-100 fw-bold btn-sm py-2 disabled" style="opacity: 0.6;">
+                        <i class="fas fa-plus-circle me-1"></i> Assign to Member
+                    </button>
+                </div>
+            </div>
+
+            <div class="card border-0 rounded-4 bg-light shadow-sm">
+                <div class="card-body p-4">
+                    <h6 class="fw-bold text-dark mb-3"><i class="fas fa-lightbulb text-warning me-2"></i> Tips for updating plans</h6>
+                    <ul class="text-muted small mb-0 ps-3" style="line-height: 1.8;">
+                        <li>Changing the name or description applies instantly to the catalog.</li>
+                        <li>Price updates usually only affect <strong>new</strong> assignments.</li>
+                        <li>Ensure duration matches the billing cycle.</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
 </div>
 
 @section Scripts {
- @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    
+    <script>
+        // Live Preview Sync Logic
+        function syncPreview() {
+            const name = document.getElementById('inp-name').value.trim();
+            const duration = document.getElementById('inp-duration').value.trim();
+            const price = document.getElementById('inp-price').value.trim();
+            const desc = document.getElementById('inp-desc').value.trim();
 
-<style>
- .rounded-4 { border-radius:1rem !important; }
-</style>
+            document.getElementById('prev-name').textContent = name || 'Plan Name';
+            document.getElementById('prev-duration').textContent = duration || '30';
+            
+            // Format price to 2 decimal places if valid number
+            let formattedPrice = '0.00';
+            if(price && !isNaN(price)) {
+                formattedPrice = parseFloat(price).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+            }
+            document.getElementById('prev-price').textContent = formattedPrice;
+            
+            document.getElementById('prev-desc').textContent = desc || 'Plan description and benefits will appear here...';
+        }
+
+        // Run once on load to sync existing values properly
+        window.addEventListener('DOMContentLoaded', syncPreview);
+    </script>
+}
