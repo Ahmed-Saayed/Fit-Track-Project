@@ -308,69 +308,71 @@ namespace FitTrack_Pro.Migrations
                 });
 
             modelBuilder.Entity("FitTrack_Pro.Models.Message", b =>
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
+
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                b.Property<decimal>("Amount")
+                    .HasColumnType("decimal(18,2)");
+
+                b.Property<DateTime>("CreatedAt")
+                    .HasColumnType("datetime2");
+
+                b.Property<string>("CreatedBy")
+                    .HasColumnType("nvarchar(max)");
+
+                b.Property<bool>("IsDeleted")
+                    .HasColumnType("bit");
+
+                b.Property<bool>("IsSeen")
+                    .HasColumnType("bit");
+
+                b.Property<string>("MessageContent")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
+
+                b.Property<string>("ReciverId")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(450)");
+
+                b.Property<DateTime?>("SeenAt")
+                    .HasColumnType("datetime2");
+
+                b.Property<string>("SenderId")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(450)");
+
+                b.HasKey("Id");
+
+                b.HasIndex("ReciverId");
+
+                b.HasIndex("SenderId");
+
+                b.ToTable("Messages");
+            });
             modelBuilder.Entity("FitTrack_Pro.Models.SubscriptionPayment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+            {
+                b.Property<int>("MemberSubscriptionId")
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                b.Property<string>("Notes")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18,2)");
+                b.Property<DateTime>("PaymentDate")
+                    .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                b.Property<string>("PaymentMethod")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
+                b.HasKey("Id");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                b.HasIndex("MemberSubscriptionId");
 
-                    b.Property<bool>("IsSeen")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("MessageContent")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ReciverId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime?>("SeenAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("SenderId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ReciverId");
-
-                    b.HasIndex("SenderId");
-
-                    b.ToTable("Messages");
-                    b.Property<int>("MemberSubscriptionId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Notes")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("PaymentDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("PaymentMethod")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MemberSubscriptionId");
-
-                    b.ToTable("SubscriptionPayments");
-                });
+                b.ToTable("SubscriptionPayments");
+            });
 
             modelBuilder.Entity("FitTrack_Pro.Models.SubscriptionPlan", b =>
                 {
@@ -670,104 +672,106 @@ namespace FitTrack_Pro.Migrations
                     b.Navigation("Reciver");
 
                     b.Navigation("Sender");
+                });
             modelBuilder.Entity("FitTrack_Pro.Models.SubscriptionPayment", b =>
-                {
-                    b.HasOne("FitTrack_Pro.Models.MemberSubscription", "MemberSubscription")
-                        .WithMany("Payments")
-                        .HasForeignKey("MemberSubscriptionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        {
+                            b.HasOne("FitTrack_Pro.Models.MemberSubscription", "MemberSubscription")
+                                .WithMany("Payments")
+                                .HasForeignKey("MemberSubscriptionId")
+                                .OnDelete(DeleteBehavior.Cascade)
+                                .IsRequired();
 
-                    b.Navigation("MemberSubscription");
-                });
+                            b.Navigation("MemberSubscription");
+                        });
 
-            modelBuilder.Entity("FitTrack_Pro.Models.Trainer", b =>
-                {
-                    b.HasOne("FitTrack_Pro.Models.ApplicationUser", "UserAccount")
-                        .WithMany()
-                        .HasForeignKey("UserAccountId");
+                    modelBuilder.Entity("FitTrack_Pro.Models.Trainer", b =>
+                        {
+                            b.HasOne("FitTrack_Pro.Models.ApplicationUser", "UserAccount")
+                                .WithMany()
+                                .HasForeignKey("UserAccountId");
 
-                    b.Navigation("UserAccount");
-                });
+                            b.Navigation("UserAccount");
+                        });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
-                {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
+                    modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+                        {
+                            b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                                .WithMany()
+                                .HasForeignKey("RoleId")
+                                .OnDelete(DeleteBehavior.Cascade)
+                                .IsRequired();
+                        });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
-                {
-                    b.HasOne("FitTrack_Pro.Models.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
+                    modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+                        {
+                            b.HasOne("FitTrack_Pro.Models.ApplicationUser", null)
+                                .WithMany()
+                                .HasForeignKey("UserId")
+                                .OnDelete(DeleteBehavior.Cascade)
+                                .IsRequired();
+                        });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
-                {
-                    b.HasOne("FitTrack_Pro.Models.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
+                    modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+                        {
+                            b.HasOne("FitTrack_Pro.Models.ApplicationUser", null)
+                                .WithMany()
+                                .HasForeignKey("UserId")
+                                .OnDelete(DeleteBehavior.Cascade)
+                                .IsRequired();
+                        });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
-                {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+                        {
+                            b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                                .WithMany()
+                                .HasForeignKey("RoleId")
+                                .OnDelete(DeleteBehavior.Cascade)
+                                .IsRequired();
 
-                    b.HasOne("FitTrack_Pro.Models.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
+                            b.HasOne("FitTrack_Pro.Models.ApplicationUser", null)
+                                .WithMany()
+                                .HasForeignKey("UserId")
+                                .OnDelete(DeleteBehavior.Cascade)
+                                .IsRequired();
+                        });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
-                {
-                    b.HasOne("FitTrack_Pro.Models.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
+                    modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+                        {
+                            b.HasOne("FitTrack_Pro.Models.ApplicationUser", null)
+                                .WithMany()
+                                .HasForeignKey("UserId")
+                                .OnDelete(DeleteBehavior.Cascade)
+                                .IsRequired();
+                        });
 
-            modelBuilder.Entity("FitTrack_Pro.Models.GymClass", b =>
-                {
-                    b.Navigation("Attendees");
-                });
+                    modelBuilder.Entity("FitTrack_Pro.Models.GymClass", b =>
+                        {
+                            b.Navigation("Attendees");
+                        });
 
-            modelBuilder.Entity("FitTrack_Pro.Models.Member", b =>
-                {
-                    b.Navigation("Attendances");
+                    modelBuilder.Entity("FitTrack_Pro.Models.Member", b =>
+                        {
+                            b.Navigation("Attendances");
 
-                    b.Navigation("Subscriptions");
-                });
+                            b.Navigation("Subscriptions");
+                        });
 
-            modelBuilder.Entity("FitTrack_Pro.Models.MemberSubscription", b =>
-                {
-                    b.Navigation("Payments");
-                });
+                    modelBuilder.Entity("FitTrack_Pro.Models.MemberSubscription", b =>
+                        {
+                            b.Navigation("Payments");
+                        });
 
-            modelBuilder.Entity("FitTrack_Pro.Models.MemberVisit", b =>
-                {
-                    b.Navigation("ClassAttendance");
-                });
+                    modelBuilder.Entity("FitTrack_Pro.Models.MemberVisit", b =>
+                        {
+                            b.Navigation("ClassAttendance");
+                        });
 
-            modelBuilder.Entity("FitTrack_Pro.Models.Trainer", b =>
-                {
-                    b.Navigation("Classes");
-                });
-#pragma warning restore 612, 618
-        }
+                    modelBuilder.Entity("FitTrack_Pro.Models.Trainer", b =>
+                        {
+                            b.Navigation("Classes");
+                        });
+                }
+                }
     }
-}
+#pragma warning restore 612, 618
+  
