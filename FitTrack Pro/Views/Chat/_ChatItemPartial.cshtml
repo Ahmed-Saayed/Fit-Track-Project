@@ -1,0 +1,53 @@
+@using FitTrack_Pro.ViewModels
+@model (ChatsViewModel vm, string section, string currentUserId)
+
+@{
+    var vm = Model.vm;
+    var section = Model.section;
+    var currentUserId = Model.currentUserId;
+
+    // Build initials
+    var parts = (vm.FullName ?? string.Empty).Split(' ', System.StringSplitOptions.RemoveEmptyEntries);
+    string initials = string.Empty;
+    if (parts.Length > 0) initials += char.ToUpperInvariant(parts[0][0]);
+    if (parts.Length > 1) initials += char.ToUpperInvariant(parts[1][0]);
+
+    string previewText = string.Empty;
+    if (!string.IsNullOrEmpty(vm.lastMessage))
+    {
+        previewText = (vm.lastMessageSenderId == currentUserId) ? "You: " + vm.lastMessage : vm.lastMessage;
+    }
+    else
+    {
+        previewText = "No conversation history";
+    }
+
+    string time = vm.lastMessageCreationDate?.ToLocalTime().ToString("M/d/yyyy h:mm tt") ?? string.Empty;
+    string itemId = $"chat-item-{section}-{vm.UserId}";
+    
+    // Badge logic
+    string badgeClass = vm.UserRole switch {
+        "Admin" => "badge-admin",
+        "Trainer" => "badge-trainer",
+        _ => "badge-member"
+    };
+    string roleName = vm.UserRole ?? "Member";
+}
+
+<a class="chat-item" id="@itemId" href="@Url.Action("GetChatMessages", "Chat", new { UserId = vm.UserId, FullName = vm.FullName })">
+    <div class="avatar-container">
+        <div class="chat-avatar">@initials</div>
+        <span class="status-indicator online"></span> @* Online by default for UI demo *@
+    </div>
+
+    <div class="chat-info">
+        <div class="chat-header-row">
+            <h5 class="chat-name">
+                @vm.FullName
+                <span class="role-badge @badgeClass">@roleName</span>
+            </h5>
+            <span class="chat-time">@time</span>
+        </div>
+        <p class="chat-preview">@previewText</p>
+    </div>
+</a>

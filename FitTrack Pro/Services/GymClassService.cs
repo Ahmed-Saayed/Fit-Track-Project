@@ -125,6 +125,12 @@ namespace FitTrack_Pro.Services
             if (model.ScheduleTime.Hour < 8)
                 return (false, "Classes cannot start before 08:00 AM.", 0);
 
+            var (available, conflict) = await CheckTrainerAvailabilityAsync(
+                model.TrainerId, model.ScheduleTime, model.DurationInMinutes);
+
+            if (!available)
+                return (false, conflict, 0);
+
             var gymClass = new GymClass
             {
                 Name = model.Name.Trim(),
@@ -149,6 +155,12 @@ namespace FitTrack_Pro.Services
         {
             if (model.ScheduleTime.Hour < 8)
                 return (false, "Classes cannot start before 08:00 AM.");
+
+            var (available, conflict) = await CheckTrainerAvailabilityAsync(
+                model.TrainerId, model.ScheduleTime, model.DurationInMinutes, model.Id);
+
+            if (!available)
+                return (false, conflict);
 
             var gymClass = await uow.GymClasses.GetByIdAsync(model.Id);
             if (gymClass is null || gymClass.IsDeleted)
@@ -362,6 +374,26 @@ namespace FitTrack_Pro.Services
         // ────────────────────────────────────────────────────────────
         //  PRIVATE HELPERS
         // ────────────────────────────────────────────────────────────
+        private async Task<(bool Available, string? ConflictReason)> CheckTrainerAvailabilityAsync(
+            int trainerId, DateTime startTime, int durationInMinutes, int? excludeClassId = null)
+        {
+            var endTime = startTime.AddMinutes(durationInMinutes);
+
+            var conflict = await uow.GymClasses.GetAllAsync()
+                .Where(c => !c.IsDeleted && c.TrainerId == trainerId && c.Id != excludeClassId)
+                .Where(c => startTime < c.ScheduleTime.AddMinutes(c.DurationInMinutes) &&
+                           c.ScheduleTime < endTime)
+                .Select(c => new { c.Name, c.ScheduleTime })
+                .FirstOrDefaultAsync();
+
+            if (conflict != null)
+            {
+                return (false, $"The trainer is already busy with another class (\"{conflict.Name}\") at {conflict.ScheduleTime:HH:mm} on this day.");
+            }
+
+            return (true, null);
+        }
+
         private static DateTime GetStartOfWeek(DateTime dt)
         {
             int diff = (7 + (dt.DayOfWeek - DayOfWeek.Monday)) % 7;

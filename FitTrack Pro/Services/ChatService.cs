@@ -1,4 +1,4 @@
-﻿using Common;
+using Common;
 using FitTrack_Pro.Common;
 using FitTrack_Pro.Models;
 using FitTrack_Pro.ViewModels;
@@ -35,6 +35,13 @@ namespace FitTrack_Pro.Services
 
                 foreach (var chat in chats)
                 {
+                    var user = await _userManager.FindByIdAsync(chat.UserId);
+                    if (user != null)
+                    {
+                        var roles = await _userManager.GetRolesAsync(user);
+                        chat.UserRole = roles.FirstOrDefault() ?? "Member";
+                    }
+
                     Message message = await _unitOfWork.Messages
                         .GetAllAsync()
                         .Where(x => !x.IsDeleted && ((x.SenderId == chat.UserId || x.ReciverId == chat.UserId) &&
@@ -117,6 +124,13 @@ namespace FitTrack_Pro.Services
 
                 foreach (var chat in chats)
                 {
+                    var user = await _userManager.FindByIdAsync(chat.UserId);
+                    if (user != null)
+                    {
+                        var roles = await _userManager.GetRolesAsync(user);
+                        chat.UserRole = roles.FirstOrDefault() ?? "Admin";
+                    }
+
                     Message message = await _unitOfWork.Messages
                         .GetAllAsync()
                         .Where(x => !x.IsDeleted && ((x.SenderId == chat.UserId || x.ReciverId == chat.UserId) && 

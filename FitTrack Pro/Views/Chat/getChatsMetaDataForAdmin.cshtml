@@ -1,4 +1,4 @@
-﻿@using System.Collections.Generic
+@using System.Collections.Generic
 @using FitTrack_Pro.ViewModels
 @using System.Security.Claims
 @model IEnumerable<ChatsViewModel>
@@ -9,131 +9,386 @@
 }
 
 <style>
-/* Container */
-.chat-list { max-width:980px; margin:28px auto; font-family: "Segoe UI", Roboto, Arial, sans-serif; color:#0f172a; }
+:root {
+    --chat-primary: #2563eb;
+    --chat-primary-hover: #1d4ed8;
+    --chat-surface: #ffffff;
+    --chat-bg: #f8fafc;
+    --chat-border: rgba(15, 23, 42, 0.08); /* Slate-900 with low opacity */
+    --chat-text-main: #0f172a;
+    --chat-text-muted: #64748b;
+    --chat-text-light: #94a3b8;
+    --chat-online: #22c55e;
+    --chat-offline: #cbd5e1;
+}
 
-/* Header */
-.chat-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
-.chat-header h2 { margin:0; font-size:1.25rem; }
+/* Container & Layout */
+.chat-page-container { 
+    max-width: 1000px; 
+    margin: 24px auto; 
+    font-family: 'Inter', -apple-system, system-ui, sans-serif; 
+    color: var(--chat-text-main);
+}
 
-/* Chat item */
+/* Search Bar - Professional Elevated Style */
+.search-container {
+    margin-bottom: 28px;
+}
+.search-wrapper {
+    display: flex;
+    align-items: center;
+    background: var(--chat-surface);
+    border: 1px solid var(--chat-border);
+    border-radius: 14px;
+    padding: 12px 18px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+.search-wrapper:focus-within {
+    border-color: var(--chat-primary);
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+.search-input {
+    border: none;
+    outline: none;
+    width: 100%;
+    margin-left: 14px;
+    font-size: 0.95rem;
+    color: var(--chat-text-main);
+    background: transparent;
+}
+.search-input::placeholder { color: var(--chat-text-light); }
+
+/* Tabs - Segmented Control Style */
+.chat-tabs {
+    display: flex;
+    background: #f1f5f9;
+    padding: 4px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    gap: 4px;
+}
+.tab-btn {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--chat-text-muted);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+.tab-btn i { font-size: 1rem; opacity: 0.7; }
+.tab-btn:hover { background: rgba(255,255,255,0.5); color: var(--chat-text-main); }
+.tab-btn.active {
+    background: var(--chat-surface);
+    color: var(--chat-primary);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+}
+
+/* Section Header */
+.section-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--chat-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 32px 0 16px 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Chat Card - Clean Dashboard Row */
 .chat-item {
-  display:flex;
-  align-items:center;
-  padding:12px 14px;
-  border-radius:12px;
-  transition: background .12s ease, transform .06s ease;
-  text-decoration:none;
-  color:inherit;
-  border:1px solid rgba(15,23,42,0.04);
-  background:#fff;
-  margin-bottom:10px;
+    display: flex;
+    align-items: center;
+    padding: 14px 18px;
+    background: var(--chat-surface);
+    border: 1px solid var(--chat-border);
+    border-radius: 16px;
+    margin-bottom: 12px;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s ease;
+    position: relative;
 }
 .chat-item:hover {
-  background: #fbfdff;
-  transform: translateY(-3px);
-  box-shadow: 0 6px 18px rgba(15,23,42,0.06);
+    border-color: var(--chat-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+    z-index: 10;
 }
 
-/* Avatar - true circle */
-.avatar {
-  width:64px;
-  height:64px;
-  border-radius:50%;
-  flex: 0 0 64px;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  font-weight:700;
-  color:#ffffff;
-  font-size:1.05rem;
-  margin-right:14px;
-  user-select:none;
-  box-shadow: 0 4px 12px rgba(2,6,23,0.08);
-  background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
-  overflow:hidden;
-  border: 2px solid rgba(255,255,255,0.06);
+/* Avatar Components */
+.avatar-container {
+    position: relative;
+    margin-right: 18px;
+    flex-shrink: 0;
+}
+.chat-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: #475569;
+    font-size: 1rem;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+.status-indicator {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    background: var(--chat-offline);
+}
+.status-indicator.online { background: var(--chat-online); }
+
+/* Content Styling */
+.chat-info { flex: 1; min-width: 0; }
+.chat-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 4px;
+}
+.chat-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--chat-text-main);
+    margin: 0;
+}
+.chat-time {
+    font-size: 0.75rem;
+    color: var(--chat-text-light);
+    font-weight: 500;
+}
+.chat-preview {
+    font-size: 0.88rem;
+    color: var(--chat-text-muted);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 90%;
 }
 
-/* If you later provide an image, it will fill the circle */
-.avatar img { width:100%; height:100%; object-fit:cover; display:block; }
+/* Badge Logic */
+.role-badge {
+    font-size: 0.7rem;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+    margin-left: 8px;
+    text-transform: uppercase;
+}
+.badge-admin { background: #fee2e2; color: #dc2626; }
+.badge-trainer { background: #dcfce7; color: #16a34a; }
+.badge-member { background: #e0f2fe; color: #0284c7; }
 
-/* Main content */
-.chat-main { flex:1; min-width:0; }
-.chat-name { margin:0; font-size:1rem; font-weight:600; color:#0f172a; }
-.chat-sub { margin-top:6px; color:#6b7280; font-size:.92rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+/* Empty State */
+.empty-illustration {
+    padding: 64px 0;
+    text-align: center;
+    color: var(--chat-text-light);
+}
+.empty-illustration i { 
+    font-size: 3rem; 
+    margin-bottom: 20px; 
+    opacity: 0.2; 
+}
 
-/* Metadata on the right */
-.chat-meta { text-align:right; margin-left:12px; min-width:120px; }
-.chat-time { color:#9ca3af; font-size:.82rem; }
-
-/* Empty state */
-.no-chats { text-align:center; color:#6b7280; padding:28px 0; }
-
-/* Responsive adjustments */
-@@media (max-width:720px) {
-  .chat-meta { display:none; }
-  .avatar { width:52px; height:52px; flex:0 0 52px; font-size:.95rem; margin-right:12px; }
-  .chat-item { padding:10px 12px; }
+/* Responsive Overrides */
+@@media (max-width: 768px) {
+    .chat-time { display: none; }
+    .chat-page-container { padding: 0 16px; }
 }
 </style>
 
-<div class="chat-list">
-  <div class="chat-header">
-    <h2>Chats</h2>
-  </div>
+@{
+    var recentChats = Model?.Where(m => !string.IsNullOrEmpty(m.lastMessage)).OrderByDescending(m => m.lastMessageCreationDate).ToList() ?? new List<ChatsViewModel>();
+    var allMembers = Model?.OrderBy(m => m.FullName).ToList() ?? new List<ChatsViewModel>();
+}
 
-  @if (!Model?.Any() ?? true)
-  {
-    <div class="no-chats">No chats to display.</div>
-  }
-  else
-  {
-    foreach (var vm in Model)
-    {
-      // Build initials from first two name parts
-      var parts = (vm.FullName ?? string.Empty).Split(' ', System.StringSplitOptions.RemoveEmptyEntries);
-      string initials = string.Empty;
-      if (parts.Length > 0) initials += char.ToUpperInvariant(parts[0][0]);
-      if (parts.Length > 1) initials += char.ToUpperInvariant(parts[1][0]);
-
-      string messageLine = string.Empty;
-      if (!string.IsNullOrEmpty(vm.lastMessage))
-      {
-        if (!string.IsNullOrEmpty(vm.lastMessageSenderId) && vm.lastMessageSenderId == currentUserId)
-        {
-          messageLine = "You: " + vm.lastMessage;
-        }
-        else
-        {
-          messageLine = (vm.FullName ?? string.Empty) + ": " + vm.lastMessage;
-        }
-      }
-
-      string time = vm.lastMessageCreationDate?.ToLocalTime().ToString("g") ?? string.Empty;
-  <a class="chat-item" href="@Url.Action("GetChatMessages", "Chat", new { UserId = vm.UserId ,FullName=vm.FullName})" aria-label="Open chat with @vm.FullName">
-    <div class="avatar" aria-hidden="true">@initials</div>
-
-    <div class="chat-main">
-      <p class="chat-name">@vm.FullName</p>
-
-      @if (!string.IsNullOrEmpty(messageLine))
-      {
-        <div class="chat-sub">@messageLine</div>
-      }
-      else
-      {
-        <div class="chat-sub">No messages yet</div>
-      }
+<div class="chat-page-container">
+    <!-- Search Section -->
+    <div class="search-container">
+        <div class="search-wrapper shadow-sm">
+            <i class="fa-solid fa-magnifying-glass text-muted fs-5"></i>
+            <input type="text" id="memberSearch" class="search-input" placeholder="Search by name or role...">
+        </div>
     </div>
 
-    <div class="chat-meta">
-      @if (!string.IsNullOrEmpty(time))
-      {
-        <div class="chat-time">@time</div>
-      }
+    <!-- Discovery Tabs -->
+    <div class="chat-tabs shadow-sm">
+        <button class="tab-btn active" data-tab="recent">
+            <i class="fa-solid fa-message"></i> Recent
+        </button>
+        <button class="tab-btn" data-tab="all">
+            <i class="fa-solid fa-address-book"></i> All Members
+        </button>
     </div>
-  </a>
-    }
-  }
+
+    <!-- Tab Contents -->
+    <div class="tab-content-wrapper">
+        
+        <!-- Recent Tab -->
+        <div id="tab-recent" class="chat-tab-panel">
+            <div class="section-title">Active Conversations</div>
+            <div class="chat-list" id="recentList">
+                @if (!recentChats.Any())
+                {
+                    <div class="empty-illustration">
+                        <i class="fa-regular fa-comments"></i>
+                        <p>No active conversations yet. Start one by searching for a member.</p>
+                    </div>
+                }
+                @foreach (var vm in recentChats)
+                {
+                    @await Html.PartialAsync("_ChatItemPartial", (vm: vm, section: "recent", currentUserId: currentUserId))
+                }
+            </div>
+        </div>
+
+        <!-- All Members Tab -->
+        <div id="tab-all" class="chat-tab-panel" style="display: none;">
+            <div class="section-title">Global Directory</div>
+            <div class="chat-list" id="allList">
+                @if (!allMembers.Any())
+                {
+                    <div class="empty-illustration">No members found in the directory.</div>
+                }
+                @foreach (var vm in allMembers)
+                {
+                    @await Html.PartialAsync("_ChatItemPartial", (vm: vm, section: "all", currentUserId: currentUserId))
+                }
+            </div>
+        </div>
+
+    </div>
 </div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const currentUserId = '@currentUserId';
+            const recentList = document.getElementById('recentList');
+            const allList = document.getElementById('allList');
+            const searchInput = document.getElementById('memberSearch');
+
+            // --- Tab Logic ---
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            const tabPanels = document.querySelectorAll('.chat-tab-panel');
+
+            tabButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const target = btn.dataset.tab;
+                    
+                    // Update buttons
+                    tabButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    // Update panels
+                    tabPanels.forEach(p => p.style.display = 'none');
+                    document.getElementById('tab-' + target).style.display = 'block';
+                });
+            });
+
+            // --- SignalR Realtime Logic ---
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl('/chatHub')
+                .withAutomaticReconnect()
+                .build();
+
+            connection.on('RecieveMessage', function (message, receiverId) {
+                if (!message) return;
+
+                const mSender = message.senderId || message.SenderId;
+                const mText = message.message || message.Message;
+                const mCreated = message.sentAt || message.SentAt;
+                const partnerId = (mSender === currentUserId) ? receiverId : mSender;
+
+                const prefix = (mSender === currentUserId) ? 'You: ' : '';
+                const timeStr = formatDateTime(new Date(mCreated));
+
+                // 1. Update/Create in Recent Tab
+                let recentItem = document.getElementById('chat-item-recent-' + partnerId);
+                
+                if (!recentItem) {
+                    // Find it in 'All' tab to clone
+                    let sourceItem = document.getElementById('chat-item-all-' + partnerId);
+                    
+                    if (sourceItem) {
+                        const empty = recentList.querySelector('.empty-illustration');
+                        if (empty) empty.remove();
+
+                        recentItem = sourceItem.cloneNode(true);
+                        recentItem.id = 'chat-item-recent-' + partnerId;
+                        recentList.prepend(recentItem);
+                    }
+                } else {
+                    recentList.prepend(recentItem);
+                }
+
+                if (recentItem) {
+                    recentItem.querySelector('.chat-preview').textContent = prefix + mText;
+                    recentItem.querySelector('.chat-time').textContent = timeStr;
+                }
+
+                // 2. Update in 'All' Directory
+                const allItem = document.getElementById('chat-item-all-' + partnerId);
+                if (allItem) {
+                    allItem.querySelector('.chat-preview').textContent = prefix + mText;
+                    allItem.querySelector('.chat-time').textContent = timeStr;
+                }
+            });
+
+            function formatDateTime(date) {
+                return date.toLocaleString('en-US', {
+                    month: 'numeric', day: 'numeric', year: 'numeric',
+                    hour: 'numeric', minute: '2-digit', hour12: true
+                }).replace(',', '');
+            }
+
+            connection.start().catch(err => console.error('SignalR Err:', err.toString()));
+
+            // --- Search Functionality ---
+            searchInput.addEventListener('input', function() {
+                const query = this.value.toLowerCase().trim();
+                const allItems = document.querySelectorAll('.chat-item');
+
+                if (query.length > 0) {
+                    allItems.forEach(item => {
+                        const name = item.querySelector('.chat-name').textContent.toLowerCase();
+                        item.style.display = name.includes(query) ? 'flex' : 'none';
+                    });
+                    
+                    // If searching, force show the panels that have results or just show all panels
+                    tabPanels.forEach(p => p.style.display = 'block');
+                } else {
+                    // Restore tabbed view
+                    allItems.forEach(item => item.style.display = 'flex');
+                    const activeTab = document.querySelector('.tab-btn.active').dataset.tab;
+                    tabPanels.forEach(p => p.style.display = 'none');
+                    document.getElementById('tab-' + activeTab).style.display = 'block';
+                }
+            });
+        });
+    </script>
+}

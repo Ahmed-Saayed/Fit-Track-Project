@@ -1,4 +1,4 @@
-﻿namespace FitTrack_Pro.ViewModels
+namespace FitTrack_Pro.ViewModels
 {
     public class ChatsViewModel
     {
@@ -11,5 +11,6 @@
         public string? lastMessageSenderId { get; set; }
 
         public DateTime ? lastMessageCreationDate { get; set; }
+        public string UserRole { get; set; } = string.Empty;
     }
 }
