@@ -35,6 +35,8 @@ namespace FitTrack_Pro.Services
 					.Where(m => !m.IsDeleted)
 					.Include(m => m.Subscriptions)
 						.ThenInclude(s => s.SubscriptionPlan)
+					.Include(m => m.Attendances)
+						.ThenInclude(a => a.GymClass)
 					.OrderByDescending(m => m.CreatedAt)
 					.Skip((page - 1) * pageSize)
 					.Take(pageSize)
@@ -59,9 +61,7 @@ namespace FitTrack_Pro.Services
 		{
 			var member = await memberRepo.GetWithActiveSubscriptionAsync(id);
 			if (member is null) return null;
-
-			// ✅ تم إصلاح الـ Include لضمان قراءة سعر الباقة
-			var allSubs = await uow.MemberSubscriptions.GetAllAsync()
+	var allSubs = await uow.MemberSubscriptions.GetAllAsync()
 				.Include(s => s.SubscriptionPlan)
 				.Where(s => s.MemberId == id && !s.IsDeleted)
 				.OrderByDescending(s => s.StartDate)
@@ -81,7 +81,10 @@ namespace FitTrack_Pro.Services
 					.Where(s => s.IsActive && s.EndDate >= DateTime.Today)
 					.Select(MapSubscription)
 					.FirstOrDefault(),
-				SubscriptionHistory = allSubs.Select(MapSubscription)
+				SubscriptionHistory = allSubs.Select(MapSubscription),
+				JoinedClasses = member.Attendances
+					.Select(a => a.GymClass?.Name ?? "Admin Class")
+					.Distinct()
 			};
 
 			return vm;
@@ -411,6 +414,9 @@ namespace FitTrack_Pro.Services
 				Age = (int)((DateTime.Today - m.BirthDate).TotalDays / 365.25),
 				ActivePlanName = activeSub?.SubscriptionPlan?.Name,
 				SubscriptionEnd = activeSub?.EndDate,
+				JoinedClasses = m.Attendances?
+					.Select(a => a.GymClass?.Name ?? "Admin Class")
+					.Distinct().ToList() ?? [],
 				Status = status,
 				CreatedAt = m.CreatedAt
 			};

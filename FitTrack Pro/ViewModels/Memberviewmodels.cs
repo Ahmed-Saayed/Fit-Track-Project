@@ -31,9 +31,12 @@ namespace FitTrack_Pro.ViewModels
 		public int Age { get; set; }
 		public string? ActivePlanName { get; set; }
 		public DateTime? SubscriptionEnd { get; set; }
+		public List<string> JoinedClasses { get; set; } = [];
 		public MemberStatus Status { get; set; }
 		public DateTime CreatedAt { get; set; }
 	}
+
+
 
 	// ════════════════════════════════════════════════════════════════
 	//  DETAILS
@@ -51,7 +54,7 @@ namespace FitTrack_Pro.ViewModels
 
 		public MemberSubscriptionViewModel? ActiveSubscription { get; set; }
 		public IEnumerable<MemberSubscriptionViewModel> SubscriptionHistory { get; set; } = [];
-
+		public IEnumerable<string> JoinedClasses { get; set; } = [];
 		public int Age => (int)((DateTime.Today - BirthDate).TotalDays / 365.25);
 		public MemberStatus Status => ActiveSubscription is { } s && s.EndDate >= DateTime.Today
 			? MemberStatus.Active : MemberStatus.Expired;

@@ -735,6 +735,36 @@
                     </div>
                 }
             </div>
+            
+            <div class="d-card">
+                <div class="d-card-header">
+                    <svg viewBox="0 0 16 16" fill="none" stroke-width="1.5">
+                        <path d="M4 4h8M4 8h8M4 12h8" />
+                        <rect x="2" y="2" width="12" height="12" rx="2" />
+                    </svg>
+                    <span class="d-card-title">Joined Classes</span>
+                </div>
+                <div class="d-card-body">
+                    @if (!Model.JoinedClasses.Any())
+                    {
+                        <div class="d-no-sub">
+                            <svg viewBox="0 0 16 16" fill="none" stroke-width="1.5">
+                                <path d="M4 8h8M8 4v8" />
+                            </svg>
+                            No classes joined yet.
+                        </div>
+                    }
+                    else
+                    {
+                        <div style="display:flex; flex-wrap:wrap; gap:8px">
+                            @foreach (var cls in Model.JoinedClasses)
+                            {
+                                <span class="d-chip d-chip-active" style="margin-top:0">@cls</span>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
 
         </div>
     </div>

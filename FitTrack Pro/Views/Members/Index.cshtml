@@ -56,12 +56,26 @@
         color:#111827; vertical-align:middle; }
     .m-table tbody tr:last-child td { border-bottom:none; }
     .m-table tbody tr:hover td { background:#fafafa; }
-    .m-name { font-family:'Syne',sans-serif; font-weight:500; font-size:13px;
-        color:#111827; text-decoration:none; }
+    
+    /* التعديل هنا: تحديد أقصى عرض للاسم وعمل قص للنص الطويل */
+    .m-name { 
+        font-family:'Syne',sans-serif; font-weight:500; font-size:13px;
+        color:#111827; text-decoration:none; 
+        display:inline-block; max-width:140px; 
+        white-space:nowrap; overflow:hidden; text-overflow:ellipsis; vertical-align:middle;
+    }
     .m-name:hover { color:#1a56db; }
+    
     .m-muted { color:#9ca3af; font-size:12px; }
-    .m-code  { font-family:monospace; font-size:12px; color:#374151;
-        background:#f3f4f6; padding:2px 6px; border-radius:4px; }
+    
+    /* التعديل هنا: للباركود أيضاً لتجنب تمدد العمود */
+    .m-code  { 
+        font-family:monospace; font-size:12px; color:#374151;
+        background:#f3f4f6; padding:2px 6px; border-radius:4px;
+        display:inline-block; max-width:90px; 
+        white-space:nowrap; overflow:hidden; text-overflow:ellipsis; vertical-align:middle;
+    }
+    
     .m-badge { display:inline-flex; align-items:center; padding:3px 8px;
         border-radius:20px; font-size:11px; font-weight:500; white-space:nowrap; }
     .m-badge-active  { background:#EAF3DE; color:#3B6D11; border:0.5px solid #C0DD97; }
@@ -69,14 +83,22 @@
     .m-badge-none    { background:#f3f4f6; color:#6b7280; border:0.5px solid #e5e7eb; }
     .m-badge-male    { background:#E6F1FB; color:#185FA5; border:0.5px solid #B5D4F4; }
     .m-badge-female  { background:#FBEAF0; color:#993556; border:0.5px solid #F4C0D1; }
+    
+    /* تحديد أقصى عرض للـ Plan */
     .m-plan-chip { background:#e8effe; color:#185FA5; font-size:11px; font-weight:500;
-        padding:3px 8px; border-radius:20px; border:0.5px solid #B5D4F4; }
+        padding:3px 8px; border-radius:20px; border:0.5px solid #B5D4F4; 
+        display:inline-block; max-width:100px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; vertical-align:middle;}
+        
+    .m-class-chip { background:#F3F4F6; color:#4B5563; font-size:10px; font-weight:500;
+        padding:2px 6px; border-radius:4px; border:0.5px solid #D1D5DB; 
+        white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width: 60px; display:inline-block; vertical-align:middle;}
+        
     .m-expiring { color:#A32D2D; font-weight:500; }
     .m-actions { display:flex; gap:5px; justify-content:flex-end; }
     .m-act { width:30px; height:30px; border-radius:7px; display:flex;
         align-items:center; justify-content:center; border:0.5px solid #e5e7eb;
         background:transparent; cursor:pointer; transition:all .15s;
-        color:#6b7280; text-decoration:none; }
+        color:#6b7280; text-decoration:none; flex-shrink:0; }
     .m-act svg { width:13px; height:13px; }
     .m-act:hover { background:#f3f4f6; color:#111827; border-color:#d1d5db; }
     .m-act.del:hover { background:#fcebeb; color:#e24b4a; border-color:#F7C1C1; }
@@ -171,23 +193,24 @@
             <table class="m-table">
                 <thead>
                     <tr>
-                        <th>#</th>
+                        <th style="width:1%">#</th>
                         <th>Name</th>
                         <th>Phone</th>
-                        <th>Age</th>
-                        <th>Gender</th>
+                        <th style="width:1%">Age</th>
+                        <th style="width:1%">Gender</th>
                         <th>Barcode</th>
                         <th>Plan</th>
+                        <th>Classes</th>
                         <th>Expires</th>
-                        <th>Status</th>
-                        <th style="text-align:right">Actions</th>
+                        <th style="width:1%">Status</th>
+                        <th style="text-align:right; width:1%">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @if (!Model.Members.Any())
                     {
                         <tr>
-                            <td colspan="10">
+                            <td colspan="11">
                                 <div class="m-empty">
                                     <div class="m-empty-icon">
                                         <svg viewBox="0 0 16 16" fill="none" stroke-width="1.5">
@@ -206,34 +229,51 @@
                         (m.SubscriptionEnd.Value - DateTime.Today).Days <= 7;
                         <tr>
                             <td><span class="m-muted">@m.Id</span></td>
-                            <td><a asp-action="Details" asp-route-id="@m.Id" class="m-name">@m.FullName</a></td>
-                            <td style="color:#374151">@m.PhoneNumber</td>
+                            <td><a asp-action="Details" asp-route-id="@m.Id" class="m-name" title="@m.FullName">@m.FullName</a></td>
+                            <td style="color:#374151; white-space:nowrap">@m.PhoneNumber</td>
                             <td style="color:#374151">@m.Age</td>
                             <td>
                                 <span class="m-badge @(m.Gender == "Male" ? "m-badge-male" : "m-badge-female")">
                                     @m.Gender
                                 </span>
                             </td>
-                            <td><span class="m-code">@m.Barcode</span></td>
+                            <td><span class="m-code" title="@m.Barcode">@m.Barcode</span></td>
                             <td>
                                 @if (m.ActivePlanName is not null)
                                 {
-                                    <span class="m-plan-chip">@m.ActivePlanName</span>
+                                    <span class="m-plan-chip" title="@m.ActivePlanName">@m.ActivePlanName</span>
                                 }
                                 else
                                 {
-
                                     <span style="color:#d1d5db">—</span>
                                 }
                             </td>
                             <td>
+                                @if (m.JoinedClasses.Any())
+                                {
+                                    <div style="display:flex; flex-wrap:wrap; gap:4px; max-width:130px">
+                                        @foreach (var cls in m.JoinedClasses.Take(2))
+                                        {
+                                            <span class="m-class-chip" title="@cls">@cls</span>
+                                        }
+                                        @if (m.JoinedClasses.Count > 2)
+                                        {
+                                            <span class="m-muted" style="font-size:10px; white-space:nowrap; align-self:center;">+@(m.JoinedClasses.Count - 2)</span>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span style="color:#d1d5db">—</span>
+                                }
+                            </td>
+                            <td style="white-space:nowrap">
                                 @if (m.SubscriptionEnd.HasValue)
                                 {
                                     <span class="@(expiring ? "m-expiring" : "")">@m.SubscriptionEnd.Value.ToString("dd MMM yyyy")</span>
                                 }
                                 else
                                 {
-
                                     <span style="color:#d1d5db">—</span>
                                 }
                             </td>
